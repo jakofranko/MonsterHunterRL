@@ -1,0 +1,28 @@
+{
+  "name": "monster_hunter_rl",
+  "authors": [
+    "Jake Franklin <jacob.d.franklin@gmail.com>"
+  ],
+  "description": "a javascript roguelike set in the Monster Hunter universe",
+  "main": "index.html",
+  "keywords": [
+    "roguelike",
+    "rot.js",
+    "monster",
+    "hunter",
+    "game"
+  ],
+  "license": "MIT",
+  "homepage": "jakofranko.github.io/monster-hunter-rl",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "rot.js": "^0.6.0"
+  }
+}
