@@ -25,7 +25,12 @@ Game.Map = function(width, height, depth, player) {
 
     // Create a table which will hold the entities
     this._entities = {};
-    // Add monsters here
+    for (var z = 0; z < this._depth; z++) {
+        for (var i = 0; i < 20; i++) {
+            var randomMonster = Game.EntityRepository.createRandom();
+            this.addEntityAtRandomPosition(randomMonster, z);
+        }
+    }
 
     // Add the Player
     this.addEntityAtRandomPosition(player, 0);
@@ -56,7 +61,11 @@ Game.Map.prototype.getPlayer = function() {
 
 Game.Map.prototype._generateTiles = function(width, height, depth) {
     var tiles = new Array(depth);
-    var dungeon = new ROT.Map.Digger(width, height);
+    var dungeon = new ROT.Map.Digger(width, height, {
+        roomWidth: [4, 12],
+        roomHeight: [4, 10],
+        corridorLength: [2, 6]
+    });
 
     // Instantiate the arrays to be multi-dimension
     for (var z = 0; z < depth; z++) {
