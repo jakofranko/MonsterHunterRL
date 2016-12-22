@@ -37,6 +37,23 @@ Game.EntityRepository.define('fungus', {
     ]
 });
 
+Game.EntityRepository.define('gnome', {
+    name: 'gnome',
+    character: 'g',
+    foreground: Game.Palette.yellow,
+    maxHp: 5,
+    attackValue: 4,
+    speed: 2000,
+    mixins: [
+        Game.EntityMixins.TaskActor, 
+        Game.EntityMixins.Attacker, 
+        Game.EntityMixins.CorpseDropper, 
+        Game.EntityMixins.Destructible, 
+        Game.EntityMixins.ExperienceGainer, 
+        Game.EntityMixins.RandomStatGainer
+    ]
+});
+
 Game.EntityRepository.define('bat', {
     name: 'bat',
     character: 'B',
@@ -54,79 +71,106 @@ Game.EntityRepository.define('bat', {
     ]
 });
 
-Game.EntityRepository.define('newt', {
-    name: 'newt',
-    character: ':',
-    foreground: 'yellow',
-    maxHp: 3,
-    attackValue: 2,
+Game.EntityRepository.define('zombie', {
+    name: 'zombie',
+    character: 'z',
+    foreground: Game.Palette.green,
+    maxHp: 5,
+    attackValue: 4,
+    speed: 2000,
     mixins: [
-        Game.EntityMixins.TaskActor,
-        Game.EntityMixins.Attacker,
-        Game.EntityMixins.CorpseDropper,
+        Game.EntityMixins.TaskActor, 
+        Game.EntityMixins.Attacker, 
+        Game.EntityMixins.CorpseDropper, 
         Game.EntityMixins.Destructible, 
         Game.EntityMixins.ExperienceGainer, 
         Game.EntityMixins.RandomStatGainer
     ]
 });
 
-Game.EntityRepository.define('kobold', {
-    name: 'kobold',
-    character: 'k',
-    foreground: 'white',
-    maxHp: 6,
+Game.EntityRepository.define('orc', {
+    name: 'orc',
+    character: 'o',
+    foreground: Game.Palette.green,
+    maxHp: 5,
     attackValue: 4,
-    sightRadius: 5,
-    tasks: ['hunt', 'wander'],
+    speed: 2000,
     mixins: [
         Game.EntityMixins.TaskActor, 
-        Game.EntityMixins.Sight,
         Game.EntityMixins.Attacker, 
-        Game.EntityMixins.Destructible,
         Game.EntityMixins.CorpseDropper, 
+        Game.EntityMixins.Destructible, 
         Game.EntityMixins.ExperienceGainer, 
         Game.EntityMixins.RandomStatGainer
     ]
 });
 
-Game.EntityRepository.define('goblin', {
-    name: 'goblin',
-    character: 'g',
-    foreground: 'limegreen',
-    maxHp: 10,
-    attackValue: 6,
-    sightRadius: 8,
-    tasks: ['hunt', 'wander'],
+Game.EntityRepository.define('wight', {
+    name: 'wight',
+    character: 'w',
+    foreground: Game.Palette.white,
+    maxHp: 5,
+    attackValue: 4,
+    speed: 2000,
     mixins: [
         Game.EntityMixins.TaskActor, 
-        Game.EntityMixins.Sight,
         Game.EntityMixins.Attacker, 
-        Game.EntityMixins.Destructible,
         Game.EntityMixins.CorpseDropper, 
+        Game.EntityMixins.Destructible, 
         Game.EntityMixins.ExperienceGainer, 
         Game.EntityMixins.RandomStatGainer
     ]
 });
 
-Game.EntityRepository.define('giant zombie', {
-    name: 'giant zombie', 
-    character: 'Z',
-    foreground: 'teal',
-    maxHp: 30,
-    attackValue: 8,
-    defenseValue: 5,
-    level: 5,
-    sightRadius: 6,
+Game.EntityRepository.define('troll', {
+    name: 'troll',
+    character: 't',
+    foreground: Game.Palette.blue,
+    maxHp: 5,
+    attackValue: 4,
+    speed: 2000,
     mixins: [
-        Game.EntityMixins.GiantZombieActor, 
-        Game.EntityMixins.Sight,
+        Game.EntityMixins.TaskActor, 
         Game.EntityMixins.Attacker, 
-        Game.EntityMixins.Destructible,
-        Game.EntityMixins.CorpseDropper,
-        Game.EntityMixins.ExperienceGainer
+        Game.EntityMixins.CorpseDropper, 
+        Game.EntityMixins.Destructible, 
+        Game.EntityMixins.ExperienceGainer, 
+        Game.EntityMixins.RandomStatGainer
     ]
-}, {
-    disableRandomCreation: true
+});
+
+Game.EntityRepository.define('werewolf', {
+    name: 'werewolf',
+    character: 'W',
+    foreground: Game.Palette.brown,
+    maxHp: 5,
+    attackValue: 4,
+    speed: 2000,
+    mixins: [
+        Game.EntityMixins.TaskActor, 
+        Game.EntityMixins.Attacker, 
+        Game.EntityMixins.CorpseDropper, 
+        Game.EntityMixins.Destructible, 
+        Game.EntityMixins.ExperienceGainer, 
+        Game.EntityMixins.RandomStatGainer
+    ]
+});
+
+Game.EntityRepository.define('vampire', {
+    name: 'vampire',
+    character: 'V',
+    foreground: Game.Palette.purple,
+    maxHp: 5,
+    attackValue: 4,
+    speed: 2000,
+    mixins: [
+        Game.EntityMixins.TaskActor, 
+        Game.EntityMixins.Attacker, 
+        Game.EntityMixins.CorpseDropper, 
+        Game.EntityMixins.Destructible, 
+        Game.EntityMixins.ExperienceGainer, 
+        Game.EntityMixins.RandomStatGainer
+    ]
 });
 
 Game.EntityRepository.define('slime', {
