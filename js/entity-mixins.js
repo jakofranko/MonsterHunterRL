@@ -174,10 +174,15 @@ Game.EntityMixins.Equipper = {
             inInventory = this.addItem(this._equipmentSlots[slot]);
 
         // If the inventory is full, drop it if possible
-        if(!inInventory && this._map)
+        if(!inInventory && this._map) {
             this._map.addMap(this.getX(), this.getY(), this.getZ(), this._equipmentSlots[slot]);
+            Game.sendMessage(this, "You drop %s on the ground", [this._equipmentSlots[slot].describeThe()]);
+        } else {
+            Game.sendMessage(this, "You put %s in your backpack", [this._equipmentSlots[slot].describeThe()]);
+        }
 
         this._equipmentSlots[slot].unequipped();  // sets the state of the item to equipped == false;
+        this._equipmentSlots[slot] = null;
     }
 };
 Game.EntityMixins.ExperienceGainer = {

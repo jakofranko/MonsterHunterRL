@@ -129,6 +129,7 @@ Game.ItemRepository.define('balistic vest', {
     name: 'balistic vest',
     character: '[',
     foreground: Game.Palette.grey,
+    slotLocations: ['body'],
     defenseValue: 6,
     mixins: [Game.ItemMixins.Equippable]
 }, {
