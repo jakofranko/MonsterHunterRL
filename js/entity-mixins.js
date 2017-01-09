@@ -11,12 +11,10 @@ Game.EntityMixins.Attacker = {
         var modifier = 0;
         // If we can equip items, then have to take into 
         // consideration weapon and armor
-        if (this.hasMixin(Game.EntityMixins.Equipper)) {
-            if (this.getWeapon()) {
-                modifier += this.getWeapon().getAttackValue();
-            }
-            if (this.getArmor()) {
-                modifier += this.getArmor().getAttackValue();
+        if(this.hasMixin(Game.EntityMixins.Equipper)) {
+            var equipment = this.getEquipment();
+            for(var i = 0; i < equipment.length; i++) {
+                modifier += equipment[i].getAttackValue();
             }
         }
         return this._attackValue + modifier;
@@ -79,11 +77,9 @@ Game.EntityMixins.Destructible = {
         // If we can equip items, then have to take into 
         // consideration weapon and armor
         if (this.hasMixin(Game.EntityMixins.Equipper)) {
-            if (this.getWeapon()) {
-                modifier += this.getWeapon().getDefenseValue();
-            }
-            if (this.getArmor()) {
-                modifier += this.getArmor().getDefenseValue();
+            var equipment = this.getEquipment();
+            for(var i = 0; i < equipment.length; i++) {
+                modifier += equipment[i].getDefenseValue();
             }
         }
         return this._defenseValue + modifier;
@@ -138,41 +134,55 @@ Game.EntityMixins.Destructible = {
 Game.EntityMixins.Equipper = {
     name: 'Equipper',
     init: function(template) {
-        this._weapon = null;
-        this._armor = null;
+        this._equipmentSlots = {
+            rightHand: null,
+            leftHand: null,
+            body: null
+        };
     },
-    wield: function(item) {
-        this._weapon = item;
-        item.wield();
-    },
-    unwield: function() {
-        if(this._weapon)
-            this._weapon.unwield();
-        this._weapon = null;
-    },
-    wear: function(item) {
-        this._armor = item;
-        item.wear();
-    },
-    takeOff: function() {
-        if(this._armor)
-            this._armor.takeOff();
-        this._armor = null;
-    },
-    getWeapon: function() {
-        return this._weapon;
-    },
-    getArmor: function() {
-        return this._armor;
-    },
-    unequip: function(item) {
-        // Helper function to be called before getting rid of an item.
-        if (this._weapon === item) {
-            this.unwield();
+    getEquipment: function() {
+        var equipment = [];
+        for(var slot in this._equipmentSlots) {
+            if(this._equipmentSlots[slot] !== null) {
+                equipment.push(this._equipmentSlots[slot]);
+            }
         }
-        if (this._armor === item) {
-            this.takeOff();
+        return equipment;
+    },
+    getEquipmentSlots: function() {
+        return this._equipmentSlots;
+    },
+    equip: function(item, slot) {
+        // If an item is already in a given slot, try to put it in inventory or drop it
+        if(this._equipmentSlots[slot] !== null)
+            this.unequip(slot);
+
+        this._equipmentSlots[slot] = item;
+        this._equipmentSlots[slot].equipped(); // sets the state of the item to equipped == true;
+    },
+    equipFromInventory: function(index, slot) {
+        if(this.hasMixin('InventoryHolder')) {
+            var item = this.getItem(index);
+            this.equip(item, slot);
+            this.removeItem(index);
+            Game.sendMessage(this, "You equiped %s.", [item.describeA()]);
         }
+    },
+    unequip: function(slot) {
+        var inInventory = false;
+        if(this.hasMixin('InventoryHolder'))
+            inInventory = this.addItem(this._equipmentSlots[slot]);
+
+        // If the inventory is full, drop it if possible
+        if(!inInventory && this._map) {
+            this._map.addMap(this.getX(), this.getY(), this.getZ(), this._equipmentSlots[slot]);
+            Game.sendMessage(this, "You drop %s on the ground", [this._equipmentSlots[slot].describeThe()]);
+        } else {
+            Game.sendMessage(this, "You put %s in your backpack", [this._equipmentSlots[slot].describeThe()]);
+        }
+
+        this._equipmentSlots[slot].unequipped();  // sets the state of the item to equipped == false;
+        this._equipmentSlots[slot] = null;
     }
 };
 Game.EntityMixins.ExperienceGainer = {
@@ -346,6 +356,13 @@ Game.EntityMixins.InventoryHolder = {
         var inventorySlots = template['inventorySlots'] || 10;
         // Set up an empty inventory.
         this._items = new Array(inventorySlots);
+
+        // If the template specifies items, put them in the entity's inventory
+        if(template['items']) {
+            for (var i = 0; i < template['items'].length; i++) {
+                this._items[i] = Game.ItemRepository.create(template['items'][i]);
+            }
+        }
     },
     getItems: function() {
         return this._items;
@@ -378,18 +395,11 @@ Game.EntityMixins.InventoryHolder = {
         return false;
     },
     removeItem: function(i, amount) {
-        // If we can equip items, then make sure we unequip the item we are removing.
-        if (this._items[i] && this.hasMixin(Game.EntityMixins.Equipper)) {
-            this.unequip(this._items[i]);
-        }
-
         // If the item is in a stack, decrement the stack amount
-        if(this._items[i].hasMixin('Stackable') && this._items[i].amount() > 1) {
+        if(this._items[i].hasMixin('Stackable') && this._items[i].amount() > 1)
             this._items[i].removeFromStack(amount);
-        } else {
-            // Simply clear the inventory slot.
+        else
             this._items[i] = null;    
-        }
     },
     canAddItem: function() {
         // Check if we have an empty slot.
@@ -463,17 +473,20 @@ Game.EntityMixins.PlayerActor = {
             return;
         }
         this._acting = true;
+
         this.addTurnHunger();
+
         // Detect if the game is over
         if(!this.isAlive()) {
             Game.Screen.playScreen.setGameEnded(true);
             // Send a last message to the player
             Game.sendMessage(this, 'Press [Enter] to continue!');
         }
+
         // Re-render the screen
         Game.refresh();
-        // Lock the engine and wait asynchronously
-        // for the player to press a key.
+
+        // Lock the engine and wait asynchronously for the player to press a key.
         this.getMap().getEngine().lock();
         this.clearMessages();
         this._acting = false;
@@ -485,7 +498,7 @@ Game.EntityMixins.PlayerStatGainer = {
     listeners: {
         onGainLevel: function() {
             // Setup the gain stat screen and show it.
-            Game.Screen.gainStatScreen.setup(this);
+            Game.Screen.gainStatScreen.enter(this);
             Game.Screen.playScreen.setSubScreen(Game.Screen.gainStatScreen);
         }
     }

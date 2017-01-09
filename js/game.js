@@ -3,6 +3,7 @@ var Game = {
 	_currentScreen: null,
 	_screenWidth: 80,
 	_screenHeight: 24,
+	_playerCharacter: null,
 
 	getDisplay: function() {
 		return this._display;
@@ -12,6 +13,12 @@ var Game = {
 	},
 	getScreenHeight: function() {
 	    return this._screenHeight;
+	},
+	getPlayerCharacter: function() {
+		return this._playerCharacter;
+	},
+	setPlayerCharacter: function(pc) {
+		this._playerCharacter = pc;
 	},
 	init: function() {
 		// Add one to height for displaying stats

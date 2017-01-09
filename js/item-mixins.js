@@ -38,10 +38,8 @@ Game.ItemMixins.Equippable = {
     init: function(template) {
         this._attackValue = template['attackValue'] || 0;
         this._defenseValue = template['defenseValue'] || 0;
-        this._wieldable = template['wieldable'] || false;
-        this._wearable = template['wearable'] || false;
-        this._wielded = false;
-        this._worn = false;
+        this._slotLocations = template['slotLocations'] || ['rightHand', 'leftHand'];
+        this._equipped = template['equipped'] || false;
     },
     getAttackValue: function() {
         return this._attackValue;
@@ -49,29 +47,14 @@ Game.ItemMixins.Equippable = {
     getDefenseValue: function() {
         return this._defenseValue;
     },
-    isWieldable: function() {
-        return this._wieldable;
+    getSlotLocations: function() {
+        return this._slotLocations;
     },
-    isWielded: function() {
-        return this._wielded;
+    equipped: function() {
+        this._equipped = true;
     },
-    wield: function() {
-        this._wielded = true;
-    },
-    unwield: function() {
-        this._wield = false;
-    },
-    isWearable: function() {
-        return this._wearable;
-    },
-    isWorn: function() {
-        return this._worn;
-    },
-    wear: function() {
-        this._worn = true;
-    },
-    takeOff: function() {
-        this._worn = false;
+    unequipped: function() {
+        this._equipped = false;
     },
     listeners: {
         'details': function() {
@@ -132,6 +115,62 @@ Game.ItemMixins.Throwable = {
                 results.push({key: 'attack', value: this.getAttackValue()});
             }
             return results;
+        }
+    }
+};
+
+// Adding an item to a container removes it from the entity.
+// Removing an item from a container adds it to the entity.
+Game.ItemMixins.Container = {
+    name: 'Container',
+    init: function(template) {
+        this._items = [];
+    },
+    getItems: function() {
+        return this._items;
+    },
+    getItem: function(i) {
+        return this._items[i];
+    },
+    addItem: function(entity, index, amount) {
+        debugger;
+        if(!entity.hasMixin('InventoryHolder') && !entity.hasMixin('Container')) {
+            return false;
+        }
+        var item = entity.getItem(index);
+        this._items.push(item);
+        entity.removeItem(index, amount);
+
+        if(entity.hasMixin('MessageRecipient'))
+            Game.sendMessage(entity, "You place %s into %s", [item.describeThe(), this.describeThe()]);
+
+    },
+    removeItem: function(entity, index, amount) {
+        debugger;
+        if(!entity.hasMixin('InventoryHolder') && !entity.hasMixin('Container')) {
+            return false;
+        }
+        var item = this.getItem(index);
+        entity.addItem(item);
+        this._items.splice(index, 1);
+
+        if(entity.hasMixin('MessageRecipient'))
+            Game.sendMessage(entity, "You remove %s from %s", [item.describeThe(), this.describeThe()]);
+    },
+    listeners: {
+        'action': function(actionTaker) {
+            var actions = {};
+            var actionName = "Open %s".format(this.describeThe());
+
+            // array of functions to execute. For each sub-array,
+            // first value is the action function,
+            // second value are the args,
+            // third (optional) value is the 'this' context to use
+            actions[actionName] = [
+                [Game.Screen.containerScreen.setup, [actionTaker, actionTaker.getItems(), this, this.getItems()], Game.Screen.containerScreen],
+                [Game.Screen.playScreen.setSubScreen, [Game.Screen.containerScreen], Game.Screen.playScreen]
+            ];
+            return actions;
         }
     }
 };

@@ -7,10 +7,39 @@ Game.Entity = function(properties) {
 	this._y = properties['y'] || 0;
 	this._z = properties['z'] || 0;
     this._speed = properties['speed'] || 1000;
+    this._str = properties['str'] || 0;
+    this._dex = properties['dex'] || 0;
+    this._int = properties['int'] || 0;
+    this._will = properties['will'] || 0;
+    this._per = properties['per'] || 0;
+    this._tough = properties['tough'] || 0;
+    this._odd = properties['odd'] || 0;
 	this._map = null;
 };
 // Make entities inherit all the functionality from glyphs
 Game.Entity.extend(Game.DynamicGlyph);
+
+Game.Entity.prototype.getStr = function() {
+    return this._str;
+};
+Game.Entity.prototype.getDex = function() {
+    return this._dex;
+};
+Game.Entity.prototype.getInt = function() {
+    return this._int;
+};
+Game.Entity.prototype.getWill = function() {
+    return this._will;
+};
+Game.Entity.prototype.getPer = function() {
+    return this._per;
+};
+Game.Entity.prototype.getTough = function() {
+    return this._tough;
+};
+Game.Entity.prototype.getOdd = function() {
+    return this._odd;
+};
 
 Game.Entity.prototype.setX = function(x) {
     this._x = x;
@@ -111,7 +140,7 @@ Game.Entity.prototype.tryMove = function(x, y, z, map) {
         return false;
 	}
 	return false;
-}
+};
 Game.Entity.prototype.isAlive = function() {
     return this._alive;
 };

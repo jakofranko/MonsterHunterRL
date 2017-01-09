@@ -1,13 +1,86 @@
 Game.EntityRepository = new Game.Repository('entities', Game.Entity);
 
-Game.PlayerTemplate = {
-    name: 'human (you)',
+// Player characters
+Game.EntityRepository.define('Owen', {
+    name: 'Owen',
     character: '@',
-    foreground: 'white',
+    foreground: Game.Palette.white,
+    str: 2,
+    dex: 1,
+    int: 1,
+    will: 2,
+    per: 1,
+    tough: 2,
+    odd: 1,
     maxHp: 40,
     attackValue: 10,
     sightRadius: 6,
     inventorySlots: 22,
+    items: ['kukri', 'shotgun', 'grenade', 'grenade'],
+    mixins: [
+        Game.EntityMixins.Sight,
+        Game.EntityMixins.PlayerActor,
+        Game.EntityMixins.Destructible,
+        Game.EntityMixins.Equipper,
+        Game.EntityMixins.Attacker,
+        Game.EntityMixins.FoodConsumer,
+        Game.EntityMixins.InventoryHolder,
+        Game.EntityMixins.MessageRecipient,
+        Game.EntityMixins.PlayerStatGainer,
+        Game.EntityMixins.Thrower,
+        Game.EntityMixins.ExperienceGainer
+    ]
+}, {
+    disableRandomCreation: true
+});
+Game.EntityRepository.define('Julie', {
+    name: 'Julie',
+    character: '@',
+    foreground: Game.Palette.blue,
+    str: 0,
+    dex: 4,
+    int: 3,
+    will: 1,
+    per: 2,
+    tough: 0,
+    odd: 0,
+    maxHp: 40,
+    attackValue: 10,
+    sightRadius: 6,
+    inventorySlots: 22,
+    items: ['knife', 'rifle', 'pistol'],
+    mixins: [
+        Game.EntityMixins.Sight,
+        Game.EntityMixins.PlayerActor,
+        Game.EntityMixins.Destructible,
+        Game.EntityMixins.Equipper,
+        Game.EntityMixins.Attacker,
+        Game.EntityMixins.FoodConsumer,
+        Game.EntityMixins.InventoryHolder,
+        Game.EntityMixins.MessageRecipient,
+        Game.EntityMixins.PlayerStatGainer,
+        Game.EntityMixins.Thrower,
+        Game.EntityMixins.ExperienceGainer
+    ]
+}, {
+    disableRandomCreation: true
+});
+Game.EntityRepository.define('Franks', {
+    name: 'Franks',
+    character: '@',
+    foreground: Game.Palette.green,
+    str: 4,
+    dex: 1,
+    int: 0,
+    will: 1,
+    per: -1,
+    tough: 4,
+    odd: 1,
+    maxHp: 40,
+    attackValue: 10,
+    sightRadius: 6,
+    inventorySlots: 22,
+    items: ['long sword', 'balistic vest', 'pistol'],
     mixins: [
         Game.EntityMixins.Sight, 
         Game.EntityMixins.PlayerActor, 
@@ -21,8 +94,73 @@ Game.PlayerTemplate = {
         Game.EntityMixins.Thrower,
         Game.EntityMixins.ExperienceGainer
     ]
-};
+}, {
+    disableRandomCreation: true
+});
+Game.EntityRepository.define('Chastity', {
+    name: 'Chastity',
+    character: '@',
+    foreground: Game.Palette.white,
+    str: 0,
+    dex: 0,
+    int: 0,
+    will: 0,
+    per: 0,
+    tough: 0,
+    odd: 0,
+    maxHp: 40,
+    attackValue: 10,
+    sightRadius: 6,
+    inventorySlots: 22,
+    mixins: [
+        Game.EntityMixins.Sight,
+        Game.EntityMixins.PlayerActor,
+        Game.EntityMixins.Destructible,
+        Game.EntityMixins.Equipper,
+        Game.EntityMixins.Attacker,
+        Game.EntityMixins.FoodConsumer,
+        Game.EntityMixins.InventoryHolder,
+        Game.EntityMixins.MessageRecipient,
+        Game.EntityMixins.PlayerStatGainer,
+        Game.EntityMixins.Thrower,
+        Game.EntityMixins.ExperienceGainer
+    ]
+}, {
+    disableRandomCreation: true
+});
+Game.EntityRepository.define('Mitchell', {
+    name: 'Mitchell',
+    character: '@',
+    foreground: Game.Palette.white,
+    str: 0,
+    dex: 0,
+    int: 0,
+    will: 0,
+    per: 0,
+    tough: 0,
+    odd: 0,
+    maxHp: 40,
+    attackValue: 10,
+    sightRadius: 6,
+    inventorySlots: 22,
+    mixins: [
+        Game.EntityMixins.Sight,
+        Game.EntityMixins.PlayerActor,
+        Game.EntityMixins.Destructible,
+        Game.EntityMixins.Equipper,
+        Game.EntityMixins.Attacker,
+        Game.EntityMixins.FoodConsumer,
+        Game.EntityMixins.InventoryHolder,
+        Game.EntityMixins.MessageRecipient,
+        Game.EntityMixins.PlayerStatGainer,
+        Game.EntityMixins.Thrower,
+        Game.EntityMixins.ExperienceGainer
+    ]
+}, {
+    disableRandomCreation: true
+});
 
+// Monsters
 Game.EntityRepository.define('fungus', {
     name: 'fungus',
     character: 'F',
