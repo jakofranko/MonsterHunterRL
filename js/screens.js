@@ -412,7 +412,6 @@ Game.Screen.bodyEquipmentScreen = new Game.Screen.ItemListScreen({
         }
     },
     ok: function(selectedItems) {
-        debugger;
         var keys = Object.keys(selectedItems);
         if(keys.length && keys.length > 0) {
             this._player.equipFromInventory(Number(keys[0]), 'body');
@@ -439,7 +438,6 @@ Game.Screen.rightHandEquipmentScreen = new Game.Screen.ItemListScreen({
         }
     },
     ok: function(selectedItems) {
-        debugger;
         var keys = Object.keys(selectedItems);
         if(keys.length && keys.length > 0) {
             this._player.equipFromInventory(Number(keys[0]), 'rightHand');
@@ -466,7 +464,6 @@ Game.Screen.leftHandEquipmentScreen = new Game.Screen.ItemListScreen({
         }
     },
     ok: function(selectedItems) {
-        debugger;
         var keys = Object.keys(selectedItems);
         if(keys.length && keys.length > 0) {
             this._player.equipFromInventory(Number(keys[0]), 'leftHand');
@@ -632,6 +629,8 @@ Game.Screen.gainStatScreen = new Game.Screen.basicScreen({
         Game.Screen.playScreen.setSubScreen(Game.Screen.gainStatScreen);
     },
     exit: function() {
+        this._entity = null;
+        this._options = null;
         Game.Screen.playScreen.setSubScreen(undefined);
     },
     render: function(display) {
