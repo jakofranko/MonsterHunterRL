@@ -19,6 +19,28 @@ Game.Entity = function(properties) {
 // Make entities inherit all the functionality from glyphs
 Game.Entity.extend(Game.DynamicGlyph);
 
+Game.Entity.prototype.getStr = function() {
+    return this._str;
+};
+Game.Entity.prototype.getDex = function() {
+    return this._dex;
+};
+Game.Entity.prototype.getInt = function() {
+    return this._int;
+};
+Game.Entity.prototype.getWill = function() {
+    return this._will;
+};
+Game.Entity.prototype.getPer = function() {
+    return this._per;
+};
+Game.Entity.prototype.getTough = function() {
+    return this._tough;
+};
+Game.Entity.prototype.getOdd = function() {
+    return this._odd;
+};
+
 Game.Entity.prototype.setX = function(x) {
     this._x = x;
 };

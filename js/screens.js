@@ -13,8 +13,106 @@ Game.Screen.startScreen = new Game.Screen.basicScreen({
     handleInput: function(inputType, inputData) {
         // When [Enter] is pressed, go to the play screen
         if(inputType === 'keydown' && inputData.keyCode === ROT.VK_RETURN) {
-            Game.switchScreen(Game.Screen.playScreen);
+            Game.switchScreen(Game.Screen.characterSelectScreen);
         }
+    }
+});
+
+Game.Screen.characterSelectScreen = new Game.Screen.basicScreen({
+    enter: function() {
+        this._playerCharacterNames = [
+            'Owen',
+            'Julie',
+            'Franks',
+            'Chastity',
+            'Mitchell'
+        ];
+        this._playerCharacters = [];
+        for (var i = 0; i < this._playerCharacterNames.length; i++) {
+            this._playerCharacters.push(Game.EntityRepository.create(this._playerCharacterNames[i]));
+        }
+        this._description = null;
+        this._stats1 = null;
+        this._stats2 = null;
+        this._currentIndex = 0;
+        this.updateDescription();
+    },
+    exit: function() {},
+    render: function(display) {
+        var w = Game.getScreenWidth(),
+            h = Game.getScreenHeight(),
+            centerX = Math.round(w / 2),
+            centerY = Math.round(h / 2),
+            caption = "Character Select",
+            descriptionWidth = 30,
+            nameSpacing = 5,
+            namesLength = 0;
+
+        // Caption
+        display.drawText(centerX - Math.round(caption.length / 2), 3, caption);
+
+        // Display Description
+        if(this._description) {
+            display.drawText(centerX - Math.round(descriptionWidth / 2), centerY - 5, this._description, descriptionWidth);
+        }
+
+        // Display Stats
+        if(this._stats1 && this._stats2) {
+            display.drawText(centerX - Math.round(this._stats1.length / 2), centerY, this._stats1);
+            display.drawText(centerX - Math.round(this._stats2.length / 2), centerY + 1, this._stats2);
+        }
+
+        // Get total name width
+        for (var i = 0; i < this._playerCharacterNames.length; i++) {
+            namesLength += this._playerCharacterNames[i].length + nameSpacing;
+        }
+
+        // Display PC Names
+        var startX = centerX - Math.round(namesLength / 2);
+        // var startX = 0;
+        for (var j = 0; j < this._playerCharacters.length; j++) {
+            var color = (j === this._currentIndex) ? Game.Palette.white : Game.Palette.grey;
+            var name = this._playerCharacters[j].getName();
+            var renderedName = '%c{' + color + '}' + this._playerCharacters[j].getName() + '%c{}';
+            display.drawText(startX, centerY + 5, renderedName);
+            startX += name.length + nameSpacing;
+        }
+    },
+    handleInput: function(inputType, inputData) {
+        // When [Enter] is pressed, go to the play screen
+        if(inputType === 'keydown') {
+            if(inputData.keyCode === ROT.VK_RETURN) {
+                var selectedCharacter = this._playerCharacters[this._currentIndex].getName();
+                Game.setPlayerCharacter(selectedCharacter);
+                Game.switchScreen(Game.Screen.playScreen);
+            } else if(inputData.keyCode === ROT.VK_LEFT && this._currentIndex > 0) {
+                this._currentIndex--;
+                this.updateDescription();
+            } else if(inputData.keyCode === ROT.VK_RIGHT && this._currentIndex < this._playerCharacterNames.length - 1) {
+                this._currentIndex++;
+                this.updateDescription();
+            }
+            Game.refresh();
+        }
+    },
+    updateDescription: function() {
+        this._description = this._playerCharacters[this._currentIndex].describe();
+        this._stats1 = this.renderStats1(this._playerCharacters[this._currentIndex]);
+        this._stats2 = this.renderStats2(this._playerCharacters[this._currentIndex]);
+    },
+    renderStats1: function(entity) {
+        var str = entity.getStr(),
+            dex = entity.getDex(),
+            int = entity.getInt();
+
+        return "Strength: " + str + " Dexterity: " + dex + " Intelligence: " + int;
+    },
+    renderStats2: function(entity) {
+        var will = entity.getWill(),
+            per = entity.getPer(),
+            tough = entity.getTough(),
+            odd = entity.getOdd();
+        return "Willpower: " + will + " Perception: " + per + " Toughness: " + tough + " Odd: " + odd;
     }
 });
 
@@ -30,7 +128,7 @@ Game.Screen.playScreen = new Game.Screen.basicScreen({
 
         // Create our map from the tiles and player
         // TODO: Have this be based off the selection of a character select screen
-        this._player = Game.EntityRepository.create('Owen');
+        this._player = Game.EntityRepository.create(Game.getPlayerCharacter());
         var map = new Game.Map(width, height, depth, this._player);
         // Start the map's engine
         map.getEngine().start();
