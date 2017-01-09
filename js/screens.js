@@ -23,13 +23,14 @@ Game.Screen.playScreen = new Game.Screen.basicScreen({
     _player: null,
     _gameEnded: false,
     _subScreen: null,
-    enter: function() { 
+    enter: function() {
         var width = 100;
         var height = 48;
         var depth = 6;
 
         // Create our map from the tiles and player
-        this._player = new Game.Entity(Game.PlayerTemplate);
+        // TODO: Have this be based off the selection of a character select screen
+        this._player = Game.EntityRepository.create('Owen');
         var map = new Game.Map(width, height, depth, this._player);
         // Start the map's engine
         map.getEngine().start();
@@ -116,8 +117,13 @@ Game.Screen.playScreen = new Game.Screen.basicScreen({
                 this.showItemsSubScreen(Game.Screen.dropScreen, this._player.getItems(), 'You have nothing to drop.');
                 return;
             } else if (inputData.keyCode === ROT.VK_E) {
-                // Show the drop screen
-                this.showItemsSubScreen(Game.Screen.eatScreen, this._player.getItems(), 'You have nothing to eat.');
+                if(inputData.shiftKey) {
+                    Game.Screen.equipmentScreen.enter(this._player);
+                    this.setSubScreen(Game.Screen.equipmentScreen);
+                } else {
+                    // Show the drop screen
+                    this.showItemsSubScreen(Game.Screen.eatScreen, this._player.getItems(), 'You have nothing to eat.');
+                }
                 return;
             } else if (inputData.keyCode === ROT.VK_W) {
                 if (inputData.shiftKey) {
@@ -340,52 +346,135 @@ Game.Screen.eatScreen = new Game.Screen.ItemListScreen({
         return true;
     }
 });
-Game.Screen.wieldScreen = new Game.Screen.ItemListScreen({
-    caption: 'Choose the item you wish to wield',
+Game.Screen.equipmentScreen = new Game.Screen.basicScreen({
+    enter: function(entity) {
+        if(entity.hasMixin('Equipper')) {
+            this._entity = entity;
+            this._slots = entity.getEquipmentSlots();
+            this._slotNames = Object.keys(this._slots);
+        } else {
+            this.exit();
+        }
+    },
+    exit: function() {
+
+    },
+    render: function(display) {
+        var letters = 'abcdefghijklmnopqrstuvwxyz',
+            w = Game.getScreenWidth(),
+            h = Game.getScreenHeight(),
+            caption = "Equipment",
+            y = 3;
+
+        // Render caption
+        display.drawText(Math.round(w / 2) - Math.round(caption.length / 2), y++, caption);
+
+        // Render equipment slots
+        var i = 0;
+        for(var slot in this._slots) {
+            var spacedText = slot.replace(/([A-Z][a-z]+)/g, " $1"),
+                capitalizedText = spacedText.replace(/\b\w/g, function(firstLetter) { return firstLetter.toUpperCase(); }),
+                equipment = (this._slots[slot]) ? this._slots[slot].describeA() : "Empty",
+                letter = letters.substring(i, i + 1);
+
+            display.drawText(0, y++, letter + " - " + capitalizedText + ": " + equipment);
+            i++
+        }
+
+    },
+    handleInput: function(inputType, inputData) {
+        if(inputType === 'keydown') {
+            if(inputData.keyCode === ROT.VK_ESCAPE || inputData.keyCode === ROT.VK_RETURN)
+                Game.Screen.playScreen.setSubScreen(undefined);
+            else if(inputData.keyCode >= ROT.VK_A && inputData.keyCode <= ROT.VK_Z) {
+                var index = inputData.keyCode - ROT.VK_A,
+                    itemScreen = this._slotNames[index] + "EquipmentScreen"; // ie, bodyEquipmentScreen
+
+                Game.Screen[itemScreen].setup(this._entity, this._entity.getItems());
+                Game.Screen.playScreen.setSubScreen(Game.Screen[itemScreen]);
+            }
+        }
+    },
+});
+Game.Screen.bodyEquipmentScreen = new Game.Screen.ItemListScreen({
+    caption: 'Body Equipment',
     canSelect: true,
     canSelectMultipleItems: false,
     hasNoItemOption: true,
     isAcceptable: function(item) {
-        return item && item.hasMixin('Equippable') && item.isWieldable();
+        if(item && item.hasMixin('Equippable')) {
+            var itemSlotLocations = item.getSlotLocations();
+            if(itemSlotLocations.indexOf('body') > -1) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     },
     ok: function(selectedItems) {
-        // Check if we selected 'no item'
+        debugger;
         var keys = Object.keys(selectedItems);
-        if (keys.length === 0) {
-            this._player.unwield();
-            Game.sendMessage(this._player, "You are empty handed.")
+        if(keys.length && keys.length > 0) {
+            this._player.equipFromInventory(Number(keys[0]), 'body');
+            return true;
         } else {
-            // Make sure to unequip the item first in case it is the armor.
-            var item = selectedItems[keys[0]];
-            this._player.unequip(item);
-            this._player.wield(item);
-            Game.sendMessage(this._player, "You are wielding %s.", [item.describeA()]);
+            this._player.unequip('body');
+            return true;
         }
-        return true;
     }
 });
-Game.Screen.wearScreen = new Game.Screen.ItemListScreen({
-    caption: 'Choose the item you wish to wear',
+Game.Screen.rightHandEquipmentScreen = new Game.Screen.ItemListScreen({
+    caption: 'Right-Hand Equipment',
     canSelect: true,
     canSelectMultipleItems: false,
     hasNoItemOption: true,
     isAcceptable: function(item) {
-        return item && item.hasMixin('Equippable') && item.isWearable();
+        if(item && item.hasMixin('Equippable')) {
+            var itemSlotLocations = item.getSlotLocations();
+            if(itemSlotLocations.indexOf('rightHand') > -1) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     },
     ok: function(selectedItems) {
-        // Check if we selected 'no item'
+        debugger;
         var keys = Object.keys(selectedItems);
-        if (keys.length === 0) {
-            this._player.unwield();
-            Game.sendMessage(this._player, "You are not wearing anthing.")
+        if(keys.length && keys.length > 0) {
+            this._player.equipFromInventory(Number(keys[0]), 'rightHand');
+            return true;
         } else {
-            // Make sure to unequip the item first in case it is the weapon.
-            var item = selectedItems[keys[0]];
-            this._player.unequip(item);
-            this._player.wear(item);
-            Game.sendMessage(this._player, "You are wearing %s.", [item.describeA()]);
+            this._player.unequip('rightHand');
+            return true;
         }
-        return true;
+    }
+});
+Game.Screen.leftHandEquipmentScreen = new Game.Screen.ItemListScreen({
+    caption: 'Left-Hand Equipment',
+    canSelect: true,
+    canSelectMultipleItems: false,
+    hasNoItemOption: true,
+    isAcceptable: function(item) {
+        if(item && item.hasMixin('Equippable')) {
+            var itemSlotLocations = item.getSlotLocations();
+            if(itemSlotLocations.indexOf('leftHand') > -1) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    },
+    ok: function(selectedItems) {
+        debugger;
+        var keys = Object.keys(selectedItems);
+        if(keys.length && keys.length > 0) {
+            this._player.equipFromInventory(Number(keys[0]), 'leftHand');
+            return true;
+        } else {
+            this._player.unequip('leftHand');
+            return true;
+        }
     }
 });
 Game.Screen.examineScreen = new Game.Screen.ItemListScreen({

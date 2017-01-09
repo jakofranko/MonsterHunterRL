@@ -38,10 +38,8 @@ Game.ItemMixins.Equippable = {
     init: function(template) {
         this._attackValue = template['attackValue'] || 0;
         this._defenseValue = template['defenseValue'] || 0;
-        this._wieldable = template['wieldable'] || false;
-        this._wearable = template['wearable'] || false;
-        this._wielded = false;
-        this._worn = false;
+        this._slotLocations = template['slotLocations'] || ['rightHand', 'leftHand'];
+        this._equipped = template['equipped'] || false;
     },
     getAttackValue: function() {
         return this._attackValue;
@@ -49,29 +47,14 @@ Game.ItemMixins.Equippable = {
     getDefenseValue: function() {
         return this._defenseValue;
     },
-    isWieldable: function() {
-        return this._wieldable;
+    getSlotLocations: function() {
+        return this._slotLocations;
     },
-    isWielded: function() {
-        return this._wielded;
+    equipped: function() {
+        this._equipped = true;
     },
-    wield: function() {
-        this._wielded = true;
-    },
-    unwield: function() {
-        this._wield = false;
-    },
-    isWearable: function() {
-        return this._wearable;
-    },
-    isWorn: function() {
-        return this._worn;
-    },
-    wear: function() {
-        this._worn = true;
-    },
-    takeOff: function() {
-        this._worn = false;
+    unequipped: function() {
+        this._equipped = false;
     },
     listeners: {
         'details': function() {
