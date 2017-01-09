@@ -7,6 +7,13 @@ Game.Entity = function(properties) {
 	this._y = properties['y'] || 0;
 	this._z = properties['z'] || 0;
     this._speed = properties['speed'] || 1000;
+    this._str = properties['str'] || 0;
+    this._dex = properties['dex'] || 0;
+    this._int = properties['int'] || 0;
+    this._will = properties['will'] || 0;
+    this._per = properties['per'] || 0;
+    this._tough = properties['tough'] || 0;
+    this._odd = properties['odd'] || 0;
 	this._map = null;
 };
 // Make entities inherit all the functionality from glyphs
@@ -111,7 +118,7 @@ Game.Entity.prototype.tryMove = function(x, y, z, map) {
         return false;
 	}
 	return false;
-}
+};
 Game.Entity.prototype.isAlive = function() {
     return this._alive;
 };
