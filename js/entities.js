@@ -30,6 +30,8 @@ Game.EntityRepository.define('Owen', {
         Game.EntityMixins.Thrower,
         Game.EntityMixins.ExperienceGainer
     ]
+}, {
+    disableRandomCreation: true
 });
 Game.EntityRepository.define('Julie', {
     name: 'Julie',
@@ -60,6 +62,8 @@ Game.EntityRepository.define('Julie', {
         Game.EntityMixins.Thrower,
         Game.EntityMixins.ExperienceGainer
     ]
+}, {
+    disableRandomCreation: true
 });
 Game.EntityRepository.define('Franks', {
     name: 'Franks',
@@ -90,6 +94,8 @@ Game.EntityRepository.define('Franks', {
         Game.EntityMixins.Thrower,
         Game.EntityMixins.ExperienceGainer
     ]
+}, {
+    disableRandomCreation: true
 });
 Game.EntityRepository.define('Chastity', {
     name: 'Chastity',
@@ -119,6 +125,8 @@ Game.EntityRepository.define('Chastity', {
         Game.EntityMixins.Thrower,
         Game.EntityMixins.ExperienceGainer
     ]
+}, {
+    disableRandomCreation: true
 });
 Game.EntityRepository.define('Mitchell', {
     name: 'Mitchell',
@@ -148,6 +156,8 @@ Game.EntityRepository.define('Mitchell', {
         Game.EntityMixins.Thrower,
         Game.EntityMixins.ExperienceGainer
     ]
+}, {
+    disableRandomCreation: true
 });
 
 // Monsters
