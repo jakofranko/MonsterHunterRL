@@ -37,7 +37,9 @@ Game.ItemMixins.Equippable = {
     name: 'Equippable',
     init: function(template) {
         this._attackValue = template['attackValue'] || 0;
+        this._attackStatModifier = template['statModifier'] || null,
         this._defenseValue = template['defenseValue'] || 0;
+        this._defenseStatModifier = template['statModifier'] || null,
         this._slotLocations = template['slotLocations'] || ['rightHand', 'leftHand'];
         this._equipped = template['equipped'] || false;
     },
@@ -49,6 +51,12 @@ Game.ItemMixins.Equippable = {
     },
     getSlotLocations: function() {
         return this._slotLocations;
+    },
+    getAttackStatModifier: function() {
+        return this._attackStatModifier;
+    },
+    getDefenseStatModifier: function() {
+        return this._defenseStatModifier;
     },
     equipped: function() {
         this._equipped = true;

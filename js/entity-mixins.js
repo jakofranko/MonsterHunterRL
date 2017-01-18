@@ -13,24 +13,49 @@ Game.EntityMixins.Attacker = {
         // consideration weapon and armor
         if(this.hasMixin(Game.EntityMixins.Equipper)) {
             var equipment = this.getEquipment();
+
+            // damage = weapon attack value + stat mod
             for(var i = 0; i < equipment.length; i++) {
-                modifier += equipment[i].getAttackValue();
+                var item = equipment[i],
+                    stat = item.getAttackStatModifier();
+
+                modifier += item.getAttackValue();
+
+                if(stat)
+                    modifier += this.getStat(stat);
             }
         }
+        // TODO: Add critical mod
         return this._attackValue + modifier;
     },
     attack: function(target) {
         // Only remove the entity if they were attackable
         if (target.hasMixin('Destructible')) {
-            var attack = this.getAttackValue();
-            var defense = target.getDefenseValue();
-            var max = Math.max(0, attack - defense);
-            var damage = 1 + Math.floor(Math.random() * max);
-
-            Game.sendMessage(this, 'You strike the %s for %s damage!', [target.getName(), damage]);
-            Game.sendMessage(target, 'The %s strikes you for %s damage!', [this.getName(), damage]);
-            target.takeDamage(this, damage);
+            var hit = this.attemptHit(target);
+            if(hit) {
+                var attack = this.getAttackValue();
+                var defense = target.getDefenseValue();
+                var total = Math.max(0, attack - defense);
+                Game.sendMessage(this, 'You strike the %s for %s damage!', [target.getName(), total]);
+                Game.sendMessage(target, 'The %s strikes you for %s damage!', [this.getName(), total]);
+                target.takeDamage(this, total);
+            } else {
+                Game.sendMessage(this, 'You miss %s!', [target.describeThe(), total]);
+                Game.sendMessage(target, '%s misses you!', [this.describeThe()]);
+            }
         }
+    },
+    attemptHit: function(target) {
+        // TODO: Add accuracy modifier
+        // If the attacker and the target have the same DEX, the attacker
+        // should have a 50% chance of hitting the target
+        var chance = (this.getDex() - target.getDex() + 5) * 10;
+        if(chance > 0 && chance < 100)
+            return Math.round(Math.random() * 100) < chance;
+        else if(chance >= 100)
+            return true;
+        else
+            return false;
     },
     increaseAttackValue: function(value) {
         // If no value was passed, default to 2.
