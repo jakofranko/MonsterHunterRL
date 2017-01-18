@@ -104,10 +104,15 @@ Game.EntityMixins.Destructible = {
         if (this.hasMixin(Game.EntityMixins.Equipper)) {
             var equipment = this.getEquipment();
             for(var i = 0; i < equipment.length; i++) {
-                modifier += equipment[i].getDefenseValue();
+                var item = equipment[i],
+                    stat = item.getDefenseStatModifier();
+                modifier += item.getDefenseValue();
+
+                if(stat)
+                   modifier += this.getStat(stat);
             }
         }
-        return this._defenseValue + modifier;
+        return this._defenseValue + modifier + this.getTough();
     },
     getHp: function() {
         return this._hp;
