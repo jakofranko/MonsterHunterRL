@@ -224,7 +224,6 @@ Game.EntityMixins.Equipper = {
 Game.EntityMixins.ExperienceGainer = {
     name: 'ExperienceGainer',
     init: function(template) {
-        this._level = template['level'] || 1;
         this._experience = template['experience'] || 0;
         this._statPointsPerLevel = template['statPointsPerLevel'] || 1;
         this._statPoints = 0;
@@ -237,15 +236,9 @@ Game.EntityMixins.ExperienceGainer = {
             this._statOptions.push(['Increase defense value', this.increaseDefenseValue]);   
             this._statOptions.push(['Increase max health', this.increaseMaxHp]);
         }
-        if (this.hasMixin('Sight')) {
-            this._statOptions.push(['Increase sight range', this.increaseSightRadius]);
-        }
         if (this.hasMixin('Thrower')) {
             this._statOptions.push(['Increase throwing skill', this.increaseThrowingSkill]);
         }
-    },
-    getLevel: function() {
-        return this._level;
     },
     getExperience: function() {
         return this._experience;

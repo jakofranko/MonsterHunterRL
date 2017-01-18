@@ -1,12 +1,11 @@
 Game.Entity = function(properties) {
 	properties = properties || {};
-	Game.DynamicGlyph.call(this, properties);
-	this._name = properties['name'] || '';
 	this._alive = true;
 	this._x = properties['x'] || 0;
 	this._y = properties['y'] || 0;
 	this._z = properties['z'] || 0;
     this._speed = properties['speed'] || 1000;
+    this._level = properties['level'] || 1;
     this._str = properties['str'] || 0;
     this._dex = properties['dex'] || 0;
     this._int = properties['int'] || 0;
@@ -15,10 +14,16 @@ Game.Entity = function(properties) {
     this._tough = properties['tough'] || 0;
     this._odd = properties['odd'] || 0;
 	this._map = null;
+
+    // Call Dynamic Glyph, applying things like mixins and listeners
+    Game.DynamicGlyph.call(this, properties);
 };
 // Make entities inherit all the functionality from glyphs
 Game.Entity.extend(Game.DynamicGlyph);
 
+Game.Entity.prototype.getLevel = function() {
+    return this._level;
+};
 Game.Entity.prototype.getStr = function() {
     return this._str;
 };
@@ -39,6 +44,10 @@ Game.Entity.prototype.getTough = function() {
 };
 Game.Entity.prototype.getOdd = function() {
     return this._odd;
+};
+Game.Entity.prototype.getStat = function(stat) {
+    var privateStat = "_" + stat;
+    return this[privateStat];
 };
 
 Game.Entity.prototype.setX = function(x) {
