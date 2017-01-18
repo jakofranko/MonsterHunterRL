@@ -93,7 +93,7 @@ Game.EntityMixins.CorpseDropper = {
 Game.EntityMixins.Destructible = {
     name: 'Destructible',
     init: function(template) {
-        this._maxHp = template['maxHp'] || 10;
+        this._maxHp = 10 + Math.max(0, this.getTough() * this.getLevel()) + (2 * this.getLevel());
         this._hp = template['hp'] || this._maxHp;
         this._defenseValue = template['defenseValue'] || 0;
     },
@@ -115,6 +115,15 @@ Game.EntityMixins.Destructible = {
     getMaxHp: function() {
         return this._maxHp;
     },
+    setHp: function(hp) {
+        this._hp = hp;
+    },
+    setMaxHp: function(maxHp) {
+        this._maxHp = maxHp;
+    },
+    updateMaxHp: function() {
+        this._maxHp = 10 + Math.max(0, this.getTough() * this.getLevel()) + (2 * this.getLevel());
+    },
     takeDamage: function(attacker, damage) {
         this._hp -= damage;
         if(this._hp <= 0) {
@@ -125,9 +134,6 @@ Game.EntityMixins.Destructible = {
             this.kill();
         }
     },
-    setHp: function(hp) {
-        this._hp = hp;
-    },  
     increaseDefenseValue: function(value) {
         // If no value was passed, default to 2.
         value = value || 2;
