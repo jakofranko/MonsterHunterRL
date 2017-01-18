@@ -551,7 +551,7 @@ Game.EntityMixins.Sight = {
 	name: 'Sight',
 	groupName: 'Sight',
 	init: function(template) {
-		this._sightRadius = template['sightRadius'] || 5;
+		this._sightRadius = 5 + Math.round(this.getPer() / 2);
 	},
 	getSightRadius: function() {
 		return this._sightRadius;
@@ -585,14 +585,7 @@ Game.EntityMixins.Sight = {
                 }
             });
         return found;
-    },
-    increaseSightRadius: function(value) {
-        // If no value was passed, default to 1.
-        value = value || 1;
-        // Add to sight radius.
-        this._sightRadius += value;
-        Game.sendMessage(this, "You are more aware of your surroundings!");
-    },
+    }
 };
 Game.EntityMixins.TaskActor = {
     name: 'TaskActor',
