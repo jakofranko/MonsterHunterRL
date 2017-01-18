@@ -556,6 +556,9 @@ Game.EntityMixins.Sight = {
 	getSightRadius: function() {
 		return this._sightRadius;
 	},
+    updateSightRadius: function() {
+        this._sightRadius = 5 + Math.round(this.getPer() / 2);
+    },
     canSee: function(entity) {
         // If not on the same map or on different floors, then exit early
         if (!entity || this._map !== entity.getMap() || this._z !== entity.getZ()) {
