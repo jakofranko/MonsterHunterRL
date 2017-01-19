@@ -68,7 +68,11 @@ Game.ItemRepository.define('shotgun', {
     character: '|',
     foreground: Game.Palette.gunmetal,
     attackValue: 3,
-    mixins: [Game.ItemMixins.Equippable]
+    type: 'ranged',
+    hands: 2,
+    clipSize: 2,
+    ammoType: 'shotgun shell',
+    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.UsesAmmo]
 }, {
     disableRandomCreation: true
 });
@@ -78,7 +82,10 @@ Game.ItemRepository.define('rifle', {
     character: '|',
     foreground: Game.Palette.gunmetal,
     attackValue: 4,
-    mixins: [Game.ItemMixins.Equippable]
+    type: 'ranged',
+    hands: 2,
+    clipSize: 6,
+    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.UsesAmmo]
 }, {
     disableRandomCreation: true
 });
@@ -88,7 +95,36 @@ Game.ItemRepository.define('pistol', {
     character: '|',
     foreground: Game.Palette.gunmetal,
     attackValue: 2,
-    mixins: [Game.ItemMixins.Equippable]
+    type: 'ranged',
+    hands: 1,
+    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.UsesAmmo]
+}, {
+    disableRandomCreation: true
+});
+
+// Ammo
+Game.ItemRepository.define('lead bullet', {
+    name: 'lead bullet',
+    character: ':',
+    foreground: Game.Palette.gunmetal,
+    attackValue: 1,
+    count: 5,
+    type: 'ammo',
+    stackable: true,
+    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Stackable]
+}, {
+    disableRandomCreation: true
+});
+
+Game.ItemRepository.define('shotgun shell', {
+    name: 'shotgun shell',
+    character: ':',
+    foreground: Game.Palette.gunmetal,
+    attackValue: 2,
+    count: 2,
+    type: 'ammo',
+    stackable: true,
+    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Stackable]
 }, {
     disableRandomCreation: true
 });

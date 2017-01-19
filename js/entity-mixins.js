@@ -104,7 +104,9 @@ Game.EntityMixins.Equipper = {
         this._equipmentSlots = {
             rightHand: null,
             leftHand: null,
-            body: null
+            body: null,
+            head: null,
+            feet: null,
         };
     },
     getEquipment: function() {
@@ -119,10 +121,25 @@ Game.EntityMixins.Equipper = {
     getEquipmentSlots: function() {
         return this._equipmentSlots;
     },
+    getSlot: function(slot) {
+        return this._equipmentSlots[slot];
+    },
+    hasRangedEquipped: function() {
+        return (this._equipmentSlots.rightHand && this._equipmentSlots.rightHand.getType() === 'ranged') || 
+            (this._equipmentSlots.leftHand && this._equipmentSlots.leftHand.getType() === 'ranged');
+    },
     equip: function(item, slot) {
         // If an item is already in a given slot, try to put it in inventory or drop it
         if(this._equipmentSlots[slot] !== null)
             this.unequip(slot);
+
+        // If an item is 2 handed, you can only have one of them equipped in your hands at a time
+        if(item.getHands() === 2) {
+            if(this._equipmentSlots.rightHand !== null)
+                this.unequip('rightHand');
+            if(this._equipmentSlots.leftHand !== null)
+                this.unequip('leftHand');
+        }
 
         this._equipmentSlots[slot] = item;
         this._equipmentSlots[slot].equipped(); // sets the state of the item to equipped == true;
@@ -134,6 +151,53 @@ Game.EntityMixins.Equipper = {
             this.removeItem(index);
             Game.sendMessage(this, "You equiped %s.", [item.describeA()]);
         }
+    },
+    reload: function(slot) {
+        if(this._equipmentSlots[slot].hasMixin('UsesAmmo')) {
+            var weapon = this._equipmentSlots[slot],
+                currAmmo = weapon.getAmmo(),
+                ammoType = weapon.getAmmoType(),
+                clipSize = weapon.getClipSize(),
+                diff = clipSize,
+                items = this.getItems(),
+                successfulReload = false;
+            if(currAmmo)
+                diff = clipSize - currAmmo.amount();
+
+            if(diff <= 0) {
+                Game.sendMessage(this, "Your %s does not need to be reloaded", [weapon.describe()]);
+                return false;
+            }
+
+            for (var i = 0; i < items.length; i++) {
+                if(items[i] && items[i].hasMixin('Equippable') && items[i].getType() === 'ammo' && items[i].getName() === ammoType) {
+                    // Try to refill your weapon with only the amount that it needs, given the amount that you have
+                    var ammoAmount = items[i].amount(),
+                        realAmount = 0;
+
+                    if(ammoAmount >= diff)
+                        realAmount = diff;
+                    else
+                        realAmount = ammoAmount;
+
+                    // Remove from inventory...
+                    this.removeItem(i, realAmount);
+
+                    // And then update the ammo in the weapon
+                    this._equipmentSlots[slot].addAmmo(realAmount);
+                    Game.sendMessage(this, 'You reload %s with %s %s', [weapon.describeThe(), realAmount, ammoType + 's']);
+                    successfulReload = true;
+                    break;
+                }
+            }
+
+            if(!successfulReload)
+                Game.sendMessage(this, 'You don\'t have any %ss to reload your %s with.', [ammoType, weapon.describeThe()]);
+        }
+    },
+    unload: function(slot, amount) {
+        if(this._equipmentSlots[slot].hasMixin('UsesAmmo'))
+            this._equipmentSlots[slot].removeAmmo(amount);
     },
     unequip: function(slot) {
         var inInventory = false;
@@ -354,10 +418,14 @@ Game.EntityMixins.InventoryHolder = {
     },
     removeItem: function(i, amount) {
         // If the item is in a stack, decrement the stack amount
-        if(this._items[i].hasMixin('Stackable') && this._items[i].amount() > 1)
+        if(this._items[i].hasMixin('Stackable') && this._items[i].amount() > 1) {
             this._items[i].removeFromStack(amount);
-        else
-            this._items[i] = null;    
+            if(this._items[i].amount() <= 0) {
+                this._items[i] = null;
+            }
+        } else {
+            this._items[i] = null;
+        }
     },
     canAddItem: function() {
         // Check if we have an empty slot.
@@ -540,6 +608,88 @@ Game.EntityMixins.RandomStatGainer = {
         }
     }
 };
+Game.EntityMixins.RangedAttacker = {
+    name: 'RangedAttacker',
+    groupName: 'Attacker',
+    init: function(template) {
+        this._rangedAttackValue = template['rangedAttackValue'] || 1;
+    },
+    getRangedAttackValue: function(slot) {
+        // TODO: Add critical mod
+        // If we can equip items, then have to take into 
+        // consideration weapon and armor
+        if(this.hasMixin(Game.EntityMixins.Equipper)) {
+            // If a slot is specified, only use that slot's stats + ammo
+            if(slot) {
+                var item = this.getSlot(slot),
+                    ammoAttackValue = item.hasMixin('UsesAmmo') ? item.getAmmo().getAttackValue() : 0;
+                return Math.round(item.getAttackValue() + ammoAttackValue) * Math.max(1, this.getDex() / 2);
+            } else {
+                var modifier = 0,
+                    equipment = this.getEquipment();
+
+                for(var i = 0; i < equipment.length; i++) {
+                    var item = equipment[i],
+                        type = item.getType();
+                    if(type === 'ranged') {
+                        var stat = item.getAttackStatModifier();
+
+                        modifier += item.getAttackValue();
+
+                        if(stat)
+                            modifier += this.getStat(stat);
+                    }
+                }
+                return this._rangedAttackValue + modifier;
+            }
+        }        
+    },
+    shoot: function(target, slot) {
+        if(this.getSlot(slot).hasMixin('UsesAmmo') && this.getSlot(slot).getAmmo().amount() <= 0) {
+            Game.sendMessage(this, "You don't have any ammunition");
+            return false;
+        }
+
+        // Remove 1 ammo...
+        this.unload(slot, 1);
+
+        // Only remove the entity if they were attackable
+        if(target.hasMixin('Destructible')) {
+            var hit = this.attemptShot(target);
+            if(hit) {
+                var attack = this.getRangedAttackValue(slot);
+                var defense = target.getDefenseValue();
+                var total = Math.max(0, attack - defense);
+                Game.sendMessage(this, 'You shoot the %s for %s damage!', [target.getName(), total]);
+                Game.sendMessage(target, 'The %s shoots you for %s damage!', [this.getName(), total]);
+                target.takeDamage(this, total);
+            } else {
+                Game.sendMessage(this, 'You miss %s!', [target.describeThe()]);
+                Game.sendMessage(target, '%s misses you!', [this.describeThe()]);
+            }
+        } else {
+            Game.sendMessage(this, 'You shoot the %s but they seem impervious to damage...', [target.getName()]);
+            Game.sendMessage(target, 'The %s shoots but you are impervious to damage!', [this.getName()]);
+        }
+    },
+    attemptShot: function(target) {
+        // TODO: Add accuracy modifier
+        // If the attacker and the target have the same DEX, the attacker
+        // should have a 50% chance of hitting the target
+        var chance = (this.getDex() - target.getDex() + 5) * 10;
+        if(chance > 0 && chance < 100)
+            return Math.round(Math.random() * 100) < chance;
+        else if(chance >= 100)
+            return true;
+        else
+            return false;
+    },
+    listeners: {
+        details: function() {
+            return [{key: 'ranged attack', value: this.getRangedAttackValue()}];
+        }
+    }
+};
 Game.EntityMixins.Sight = {
 	name: 'Sight',
 	groupName: 'Sight',
@@ -691,12 +841,12 @@ Game.EntityMixins.Thrower = {
             } else {
                 lastPoint = linePoints[i];
             }   
-        };
+        }
 
         // If nothing is in the way, the end point is targetX and targetY
-        if(!end) {
-            end = {x: targetX, y: targetY}
-        }
+        if(!end)
+            end = {x: targetX, y: targetY};
+
         return {x: end.x, y: end.y, distance: linePoints.length};
     },
     throwItem: function(i, targetX, targetY) {

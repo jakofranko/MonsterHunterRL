@@ -217,13 +217,31 @@ Game.Screen.playScreen = new Game.Screen.basicScreen({
                 return;
             } else if (inputData.keyCode === ROT.VK_E) {
                 if(inputData.shiftKey) {
+                    this.showItemsSubScreen(Game.Screen.eatScreen, this._player.getItems(), 'You have nothing to eat.');
+                } else {
                     Game.Screen.equipmentScreen.enter(this._player);
                     this.setSubScreen(Game.Screen.equipmentScreen);
-                } else {
-                    // Show the drop screen
-                    this.showItemsSubScreen(Game.Screen.eatScreen, this._player.getItems(), 'You have nothing to eat.');
                 }
                 return;
+            } else if(inputData.keyCode === ROT.VK_F && this._player.hasMixin('RangedAttacker')) {
+                if(this._player.hasRangedEquipped()) {
+                    var offsets = this.getScreenOffsets();
+                    Game.Screen.shootScreen.setup(this._player, this._player.getX(), this._player.getY(), offsets.x, offsets.y);
+                    this.setSubScreen(Game.Screen.shootScreen);
+                    return;
+                } else {
+                    Game.sendMessage(this._player, 'You do not have any ranged weapons equipped');
+                    return;
+                }
+            } else if(inputData.keyCode === ROT.VK_R) {
+                if(this._player.hasMixin('Equipper')) {
+                    if(this._player.getSlot('rightHand') && this._player.getSlot('rightHand').hasMixin('UsesAmmo'))
+                        this._player.reload('rightHand');
+                    if(this._player.getSlot('leftHand') && this._player.getSlot('leftHand').hasMixin('UsesAmmo'))
+                        this._player.reload('leftHand');
+                } else {
+                    return;
+                }
             } else if (inputData.keyCode === ROT.VK_W) {
                 if (inputData.shiftKey) {
                     // Show the wear screen
@@ -723,10 +741,10 @@ Game.Screen.helpScreen = new Game.Screen.basicScreen({
         display.drawText(0, y++, '[>] to go down stairs');
         display.drawText(0, y++, '[,] to pick up items');
         display.drawText(0, y++, '[d] to drop items');
-        display.drawText(0, y++, '[e] to eat items');
-        display.drawText(0, y++, '[w] to wield items');
-        display.drawText(0, y++, '[W] to wear items');
+        display.drawText(0, y++, '[e] to equip items');
+        display.drawText(0, y++, '[E] to eat items');
         display.drawText(0, y++, '[t] to throw items');
+        display.drawText(0, y++, '[f] to fire ranged weapons');
         display.drawText(0, y++, '[x] to examine items');
         display.drawText(0, y++, '[;] to look around you');
         display.drawText(0, y++, '[?] to show this help screen');

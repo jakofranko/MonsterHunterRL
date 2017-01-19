@@ -104,6 +104,34 @@ Game.ItemMixins.Stackable = {
         } else {
             this._count--;
         }
+        if(this._count < 0)
+            this._count = 0;
+    }
+};
+Game.ItemMixins.UsesAmmo = {
+    name: 'UsesAmmo',
+    init: function(template) {
+        this._clipSize = template['clipSize'] || 10;
+        this._ammoType = template['ammoType'] || 'lead bullet';
+        this._ammo = template['ammo'] || Game.ItemRepository.create(this._ammoType, { count: this._clipSize });
+    },
+    getClipSize: function() {
+        return this._clipSize;
+    },
+    getAmmoType: function() {
+        return this._ammoType;
+    },
+    getAmmo: function() {
+        return this._ammo;
+    },
+    setAmmo: function(ammo) {
+        this._ammo = ammo;
+    },
+    addAmmo: function(amount) {
+        this._ammo.addToStack(amount);
+    },
+    removeAmmo: function(amount) {
+        this._ammo.removeFromStack(amount);
     }
 };
 Game.ItemMixins.Throwable = {
