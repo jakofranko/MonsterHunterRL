@@ -16,13 +16,14 @@ Game.EntityRepository.define('Owen', {
     attackValue: 10,
     sightRadius: 6,
     inventorySlots: 22,
-    items: ['kukri', 'shotgun', 'grenade', 'grenade'],
+    items: ['kukri', 'shotgun', 'grenade', 'grenade', 'shotgun shell'],
     mixins: [
         Game.EntityMixins.Sight,
         Game.EntityMixins.PlayerActor,
         Game.EntityMixins.Destructible,
         Game.EntityMixins.Equipper,
-        Game.EntityMixins.Attacker,
+        Game.EntityMixins.MeleeAttacker,
+        Game.EntityMixins.RangedAttacker,
         Game.EntityMixins.FoodConsumer,
         Game.EntityMixins.InventoryHolder,
         Game.EntityMixins.MessageRecipient,
@@ -48,13 +49,14 @@ Game.EntityRepository.define('Julie', {
     attackValue: 10,
     sightRadius: 6,
     inventorySlots: 22,
-    items: ['knife', 'rifle', 'pistol'],
+    items: ['knife', 'rifle', 'pistol', 'lead bullet'],
     mixins: [
         Game.EntityMixins.Sight,
         Game.EntityMixins.PlayerActor,
         Game.EntityMixins.Destructible,
         Game.EntityMixins.Equipper,
-        Game.EntityMixins.Attacker,
+        Game.EntityMixins.MeleeAttacker,
+        Game.EntityMixins.RangedAttacker,
         Game.EntityMixins.FoodConsumer,
         Game.EntityMixins.InventoryHolder,
         Game.EntityMixins.MessageRecipient,
@@ -80,13 +82,14 @@ Game.EntityRepository.define('Franks', {
     attackValue: 10,
     sightRadius: 6,
     inventorySlots: 22,
-    items: ['long sword', 'balistic vest', 'pistol'],
+    items: ['long sword', 'balistic vest', 'pistol', 'shotgun shell'],
     mixins: [
         Game.EntityMixins.Sight, 
         Game.EntityMixins.PlayerActor, 
         Game.EntityMixins.Destructible,
         Game.EntityMixins.Equipper,
-        Game.EntityMixins.Attacker,
+        Game.EntityMixins.MeleeAttacker,
+        Game.EntityMixins.RangedAttacker,
         Game.EntityMixins.FoodConsumer,
         Game.EntityMixins.InventoryHolder,
         Game.EntityMixins.MessageRecipient,
@@ -117,7 +120,8 @@ Game.EntityRepository.define('Chastity', {
         Game.EntityMixins.PlayerActor,
         Game.EntityMixins.Destructible,
         Game.EntityMixins.Equipper,
-        Game.EntityMixins.Attacker,
+        Game.EntityMixins.MeleeAttacker,
+        Game.EntityMixins.RangedAttacker,
         Game.EntityMixins.FoodConsumer,
         Game.EntityMixins.InventoryHolder,
         Game.EntityMixins.MessageRecipient,
@@ -148,7 +152,8 @@ Game.EntityRepository.define('Mitchell', {
         Game.EntityMixins.PlayerActor,
         Game.EntityMixins.Destructible,
         Game.EntityMixins.Equipper,
-        Game.EntityMixins.Attacker,
+        Game.EntityMixins.MeleeAttacker,
+        Game.EntityMixins.RangedAttacker,
         Game.EntityMixins.FoodConsumer,
         Game.EntityMixins.InventoryHolder,
         Game.EntityMixins.MessageRecipient,
@@ -168,9 +173,9 @@ Game.EntityRepository.define('fungus', {
     maxHp: 10,
     speed: 250,
     mixins: [
-        Game.EntityMixins.FungusActor, 
-        Game.EntityMixins.Destructible, 
-        Game.EntityMixins.ExperienceGainer, 
+        Game.EntityMixins.FungusActor,
+        Game.EntityMixins.Destructible,
+        Game.EntityMixins.ExperienceGainer,
         Game.EntityMixins.RandomStatGainer
     ]
 });
@@ -183,11 +188,11 @@ Game.EntityRepository.define('gnome', {
     attackValue: 4,
     speed: 2000,
     mixins: [
-        Game.EntityMixins.TaskActor, 
-        Game.EntityMixins.Attacker, 
-        Game.EntityMixins.CorpseDropper, 
-        Game.EntityMixins.Destructible, 
-        Game.EntityMixins.ExperienceGainer, 
+        Game.EntityMixins.TaskActor,
+        Game.EntityMixins.MeleeAttacker,
+        Game.EntityMixins.CorpseDropper,
+        Game.EntityMixins.Destructible,
+        Game.EntityMixins.ExperienceGainer,
         Game.EntityMixins.RandomStatGainer
     ]
 });
@@ -200,11 +205,11 @@ Game.EntityRepository.define('bat', {
     attackValue: 4,
     speed: 2000,
     mixins: [
-        Game.EntityMixins.TaskActor, 
-        Game.EntityMixins.Attacker, 
-        Game.EntityMixins.CorpseDropper, 
-        Game.EntityMixins.Destructible, 
-        Game.EntityMixins.ExperienceGainer, 
+        Game.EntityMixins.TaskActor,
+        Game.EntityMixins.MeleeAttacker,
+        Game.EntityMixins.CorpseDropper,
+        Game.EntityMixins.Destructible,
+        Game.EntityMixins.ExperienceGainer,
         Game.EntityMixins.RandomStatGainer
     ]
 });
@@ -217,11 +222,11 @@ Game.EntityRepository.define('zombie', {
     attackValue: 4,
     speed: 2000,
     mixins: [
-        Game.EntityMixins.TaskActor, 
-        Game.EntityMixins.Attacker, 
-        Game.EntityMixins.CorpseDropper, 
-        Game.EntityMixins.Destructible, 
-        Game.EntityMixins.ExperienceGainer, 
+        Game.EntityMixins.TaskActor,
+        Game.EntityMixins.MeleeAttacker,
+        Game.EntityMixins.CorpseDropper,
+        Game.EntityMixins.Destructible,
+        Game.EntityMixins.ExperienceGainer,
         Game.EntityMixins.RandomStatGainer
     ]
 });
@@ -234,11 +239,11 @@ Game.EntityRepository.define('orc', {
     attackValue: 4,
     speed: 2000,
     mixins: [
-        Game.EntityMixins.TaskActor, 
-        Game.EntityMixins.Attacker, 
-        Game.EntityMixins.CorpseDropper, 
-        Game.EntityMixins.Destructible, 
-        Game.EntityMixins.ExperienceGainer, 
+        Game.EntityMixins.TaskActor,
+        Game.EntityMixins.MeleeAttacker,
+        Game.EntityMixins.CorpseDropper,
+        Game.EntityMixins.Destructible,
+        Game.EntityMixins.ExperienceGainer,
         Game.EntityMixins.RandomStatGainer
     ]
 });
@@ -251,11 +256,11 @@ Game.EntityRepository.define('wight', {
     attackValue: 4,
     speed: 2000,
     mixins: [
-        Game.EntityMixins.TaskActor, 
-        Game.EntityMixins.Attacker, 
-        Game.EntityMixins.CorpseDropper, 
-        Game.EntityMixins.Destructible, 
-        Game.EntityMixins.ExperienceGainer, 
+        Game.EntityMixins.TaskActor,
+        Game.EntityMixins.MeleeAttacker,
+        Game.EntityMixins.CorpseDropper,
+        Game.EntityMixins.Destructible,
+        Game.EntityMixins.ExperienceGainer,
         Game.EntityMixins.RandomStatGainer
     ]
 });
@@ -268,11 +273,11 @@ Game.EntityRepository.define('troll', {
     attackValue: 4,
     speed: 2000,
     mixins: [
-        Game.EntityMixins.TaskActor, 
-        Game.EntityMixins.Attacker, 
-        Game.EntityMixins.CorpseDropper, 
-        Game.EntityMixins.Destructible, 
-        Game.EntityMixins.ExperienceGainer, 
+        Game.EntityMixins.TaskActor,
+        Game.EntityMixins.MeleeAttacker,
+        Game.EntityMixins.CorpseDropper,
+        Game.EntityMixins.Destructible,
+        Game.EntityMixins.ExperienceGainer,
         Game.EntityMixins.RandomStatGainer
     ]
 });
@@ -285,11 +290,11 @@ Game.EntityRepository.define('werewolf', {
     attackValue: 4,
     speed: 2000,
     mixins: [
-        Game.EntityMixins.TaskActor, 
-        Game.EntityMixins.Attacker, 
-        Game.EntityMixins.CorpseDropper, 
-        Game.EntityMixins.Destructible, 
-        Game.EntityMixins.ExperienceGainer, 
+        Game.EntityMixins.TaskActor,
+        Game.EntityMixins.MeleeAttacker,
+        Game.EntityMixins.CorpseDropper,
+        Game.EntityMixins.Destructible,
+        Game.EntityMixins.ExperienceGainer,
         Game.EntityMixins.RandomStatGainer
     ]
 });
@@ -302,11 +307,11 @@ Game.EntityRepository.define('vampire', {
     attackValue: 4,
     speed: 2000,
     mixins: [
-        Game.EntityMixins.TaskActor, 
-        Game.EntityMixins.Attacker, 
-        Game.EntityMixins.CorpseDropper, 
-        Game.EntityMixins.Destructible, 
-        Game.EntityMixins.ExperienceGainer, 
+        Game.EntityMixins.TaskActor,
+        Game.EntityMixins.MeleeAttacker,
+        Game.EntityMixins.CorpseDropper,
+        Game.EntityMixins.Destructible,
+        Game.EntityMixins.ExperienceGainer,
         Game.EntityMixins.RandomStatGainer
     ]
 });
@@ -320,12 +325,12 @@ Game.EntityRepository.define('slime', {
     sightRadius: 3,
     tasks: ['hunt', 'wander'],
     mixins: [
-        Game.EntityMixins.TaskActor, 
+        Game.EntityMixins.TaskActor,
         Game.EntityMixins.Sight,
-        Game.EntityMixins.Attacker, 
+        Game.EntityMixins.MeleeAttacker,
         Game.EntityMixins.Destructible,
         Game.EntityMixins.CorpseDropper,
-        Game.EntityMixins.ExperienceGainer, 
+        Game.EntityMixins.ExperienceGainer,
         Game.EntityMixins.RandomStatGainer
     ]
 });
