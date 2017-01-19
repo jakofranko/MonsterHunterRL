@@ -1,75 +1,6 @@
 // From http://www.codingcookies.com/2013/04/20/building-a-roguelike-in-javascript-part-4/
 Game.EntityMixins = {};
 
-Game.EntityMixins.Attacker = {
-    name: 'Attacker',
-    groupName: 'Attacker',
-    init: function(template) {
-        this._attackValue = template['attackValue'] || 1;
-    },
-    getAttackValue: function() {
-        var modifier = 0;
-        // If we can equip items, then have to take into 
-        // consideration weapon and armor
-        if(this.hasMixin(Game.EntityMixins.Equipper)) {
-            var equipment = this.getEquipment();
-
-            // damage = weapon attack value + stat mod
-            for(var i = 0; i < equipment.length; i++) {
-                var item = equipment[i],
-                    stat = item.getAttackStatModifier();
-
-                modifier += item.getAttackValue();
-
-                if(stat)
-                    modifier += this.getStat(stat);
-            }
-        }
-        // TODO: Add critical mod
-        return this._attackValue + modifier;
-    },
-    attack: function(target) {
-        // Only remove the entity if they were attackable
-        if (target.hasMixin('Destructible')) {
-            var hit = this.attemptHit(target);
-            if(hit) {
-                var attack = this.getAttackValue();
-                var defense = target.getDefenseValue();
-                var total = Math.max(0, attack - defense);
-                Game.sendMessage(this, 'You strike the %s for %s damage!', [target.getName(), total]);
-                Game.sendMessage(target, 'The %s strikes you for %s damage!', [this.getName(), total]);
-                target.takeDamage(this, total);
-            } else {
-                Game.sendMessage(this, 'You miss %s!', [target.describeThe(), total]);
-                Game.sendMessage(target, '%s misses you!', [this.describeThe()]);
-            }
-        }
-    },
-    attemptHit: function(target) {
-        // TODO: Add accuracy modifier
-        // If the attacker and the target have the same DEX, the attacker
-        // should have a 50% chance of hitting the target
-        var chance = (this.getDex() - target.getDex() + 5) * 10;
-        if(chance > 0 && chance < 100)
-            return Math.round(Math.random() * 100) < chance;
-        else if(chance >= 100)
-            return true;
-        else
-            return false;
-    },
-    increaseAttackValue: function(value) {
-        // If no value was passed, default to 2.
-        value = value || 2;
-        // Add to the attack value.
-        this._attackValue += value;
-        Game.sendMessage(this, "You look stronger!");
-    },
-    listeners: {
-        details: function() {
-            return [{key: 'attack', value: this.getAttackValue()}];
-        }
-    }
-};
 Game.EntityMixins.CorpseDropper = {
     name: 'CorpseDropper',
     init: function(template) {
@@ -229,9 +160,6 @@ Game.EntityMixins.ExperienceGainer = {
         this._statPoints = 0;
         // Determine what stats can be levelled up.
         this._statOptions = [];
-        if (this.hasMixin('Attacker')) {
-            this._statOptions.push(['Increase attack value', this.increaseAttackValue]);
-        }
         if (this.hasMixin('Destructible')) {
             this._statOptions.push(['Increase defense value', this.increaseDefenseValue]);   
             this._statOptions.push(['Increase max health', this.increaseMaxHp]);
@@ -285,9 +213,10 @@ Game.EntityMixins.ExperienceGainer = {
     },
     listeners: {
         onKill: function(victim) {
+            // TODO: Determine how experience is earned
             var exp = victim.getMaxHp() + victim.getDefenseValue();
-            if (victim.hasMixin('Attacker')) {
-                exp += victim.getAttackValue();
+            if (victim.hasMixin('MeleeAttacker')) {
+                exp += victim.getMeleeAttackValue();
             }
             // Account for level differences
             if (victim.hasMixin('ExperienceGainer')) {
@@ -476,6 +405,70 @@ Game.EntityMixins.InventoryHolder = {
         }
     }
 };
+Game.EntityMixins.MeleeAttacker = {
+    name: 'MeleeAttacker',
+    groupName: 'Attacker',
+    init: function(template) {
+        this._meleeAttackValue = template['meleeAttackValue'] || 1;
+    },
+    getMeleeAttackValue: function() {
+        var modifier = 0;
+        // If we can equip items, then have to take into 
+        // consideration weapon and armor
+        if(this.hasMixin(Game.EntityMixins.Equipper)) {
+            var equipment = this.getEquipment();
+
+            // damage = weapon attack value + stat mod
+            for(var i = 0; i < equipment.length; i++) {
+                var item = equipment[i];
+                if(equipment[i].getType() === 'melee') {
+                    var stat = item.getAttackStatModifier();
+
+                    modifier += item.getAttackValue();
+
+                    if(stat)
+                        modifier += this.getStat(stat);
+                }
+            }
+        }
+        // TODO: Add critical mod
+        return this._meleeAttackValue + modifier;
+    },
+    melee: function(target) {
+        // Only remove the entity if they were attackable
+        if (target.hasMixin('Destructible')) {
+            var hit = this.attemptHit(target);
+            if(hit) {
+                var attack = this.getMeleeAttackValue();
+                var defense = target.getDefenseValue();
+                var total = Math.max(0, attack - defense);
+                Game.sendMessage(this, 'You strike the %s for %s damage!', [target.getName(), total]);
+                Game.sendMessage(target, 'The %s strikes you for %s damage!', [this.getName(), total]);
+                target.takeDamage(this, total);
+            } else {
+                Game.sendMessage(this, 'You miss %s!', [target.describeThe()]);
+                Game.sendMessage(target, '%s misses you!', [this.describeThe()]);
+            }
+        }
+    },
+    attemptHit: function(target) {
+        // TODO: Add accuracy modifier
+        // If the attacker and the target have the same DEX, the attacker
+        // should have a 50% chance of hitting the target
+        var chance = (this.getDex() - target.getDex() + 5) * 10;
+        if(chance > 0 && chance < 100)
+            return Math.round(Math.random() * 100) < chance;
+        else if(chance >= 100)
+            return true;
+        else
+            return false;
+    },
+    listeners: {
+        details: function() {
+            return [{key: 'melee attack', value: this.getMeleeAttackValue()}];
+        }
+    }
+};
 Game.EntityMixins.MessageRecipient = {
     name: 'MessageRecipient',
     init: function(template) {
@@ -623,9 +616,9 @@ Game.EntityMixins.TaskActor = {
         // If we are adjacent to the player, then attack instead of hunting.
         // TODO: if I'm not mistaken, this enforces a topology 4 and doesn't account for diagnally adjacent
         var offsets = Math.abs(player.getX() - this.getX()) + Math.abs(player.getY() - this.getY());
-        if (offsets === 1) {
-            if (this.hasMixin('Attacker')) {
-                this.attack(player);
+        if(offsets === 1) {
+            if (this.hasMixin('MeleeAttacker')) {
+                this.melee(player);
                 return;
             }
         }
@@ -739,7 +732,7 @@ Game.EntityMixins.Thrower = {
             this.removeItem(i);
         }
     }
-}
+};
 
 // For some reason, Game.extend has to be called after Game.EntityMixins.TaskActor is defined, since that's the thing it's trying to extend.
 Game.EntityMixins.GiantZombieActor = Game.extend(Game.EntityMixins.TaskActor, {

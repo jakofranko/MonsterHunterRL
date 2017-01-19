@@ -41,6 +41,8 @@ Game.ItemMixins.Equippable = {
         this._defenseValue = template['defenseValue'] || 0;
         this._defenseStatModifier = template['statModifier'] || null,
         this._slotLocations = template['slotLocations'] || ['rightHand', 'leftHand'];
+        this._type = template['type'] || 'melee';
+        this._hands = template['hands'] || null; // or 1 or 2
         this._equipped = template['equipped'] || false;
     },
     getAttackValue: function() {
@@ -51,6 +53,12 @@ Game.ItemMixins.Equippable = {
     },
     getSlotLocations: function() {
         return this._slotLocations;
+    },
+    getType: function() {
+        return this._type;
+    },
+    getHands: function() {
+        return this._hands;
     },
     getAttackStatModifier: function() {
         return this._attackStatModifier;
@@ -66,13 +74,7 @@ Game.ItemMixins.Equippable = {
     },
     listeners: {
         'details': function() {
-            var results = [];
-            if (this._wieldable) {
-                results.push({key: 'attack', value: this.getAttackValue()});
-            }
-            if (this._wearable) {
-                results.push({key: 'defense', value: this.getDefenseValue()});
-            }
+            var results = [{'test': "I need to come up with a real description for this"}];
             return results;
         }
     }
@@ -141,7 +143,6 @@ Game.ItemMixins.Container = {
         return this._items[i];
     },
     addItem: function(entity, index, amount) {
-        debugger;
         if(!entity.hasMixin('InventoryHolder') && !entity.hasMixin('Container')) {
             return false;
         }
@@ -154,7 +155,6 @@ Game.ItemMixins.Container = {
 
     },
     removeItem: function(entity, index, amount) {
-        debugger;
         if(!entity.hasMixin('InventoryHolder') && !entity.hasMixin('Container')) {
             return false;
         }

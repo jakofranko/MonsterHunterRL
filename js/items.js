@@ -6,6 +6,8 @@ Game.ItemRepository.define('knife', {
     character: ')',
     foreground: Game.Palette.grey,
     attackValue: 4,
+    type: 'melee',
+    hands: 1,
     mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Throwable]
 }, {
     disableRandomCreation: true
@@ -16,6 +18,8 @@ Game.ItemRepository.define('dagger', {
     character: ')',
     foreground: Game.Palette.grey,
     attackValue: 5,
+    type: 'melee',
+    hands: 1,
     mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Throwable]
 }, {
     disableRandomCreation: true
@@ -26,6 +30,8 @@ Game.ItemRepository.define('kukri', {
     character: ')',
     foreground: Game.Palette.grey,
     attackValue: 6,
+    type: 'melee',
+    hands: 1,
     mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Throwable]
 }, {
     disableRandomCreation: true
@@ -36,6 +42,8 @@ Game.ItemRepository.define('long sword', {
     character: ')',
     foreground: Game.Palette.grey,
     attackValue: 10,
+    type: 'melee',
+    hands: 2,
     mixins: [Game.ItemMixins.Equippable]
 }, {
     disableRandomCreation: true
@@ -47,6 +55,8 @@ Game.ItemRepository.define('staff', {
     foreground: 'yellow',
     attackValue: 5,
     defenseValue: 3,
+    type: 'melee',
+    hands: 1,
     mixins: [Game.ItemMixins.Equippable]
 }, {
     disableRandomCreation: true

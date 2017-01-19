@@ -197,6 +197,7 @@ Game.Screen.playScreen = new Game.Screen.basicScreen({
         }
 
         // Otherwise, handle input normally for this screen
+        // NOTE: If you do not 'return' when handling the input, pressing the key will count as your turn
         if (inputType === 'keydown') {
             if (inputData.keyCode === ROT.VK_LEFT) {
                 this.move(-1, 0, 0);
@@ -664,18 +665,39 @@ Game.Screen.lookScreen = new Game.Screen.TargetBasedScreen({
         }
     }
 });
+Game.Screen.shootScreen = new Game.Screen.TargetBasedScreen({
+    okFunction: function(x, y) {
+        var equipment = this._player.getEquipmentSlots(),
+            entity = false,
+            z = this._player.getZ();
+        for (var i = 0; i < this._realPath.length; i++) {
+            entity = this._player.getMap().getEntityAt(this._realPath[i].x, this._realPath[i].y, z);
+            if(entity && (this._realPath[i].x !== this._startX + this._offsetX || this._realPath[i].y !== this._startY + this._offsetY))
+                break;
+        }
+
+        if(entity) {
+            if(equipment.rightHand && equipment.rightHand.getType() === 'ranged')
+                this._player.shoot(entity, 'rightHand');
+            if(equipment.leftHand && equipment.leftHand.getType() === 'ranged')
+                this._player.shoot(entity, 'leftHand');
+        } else {
+            Game.sendMessage(this._player, 'You shoot wildly and miss!');
+        }
+        return true;
+    }
+});
 Game.Screen.throwTargetScreen = new Game.Screen.TargetBasedScreen({
     captionFunction: function(x, y, points) {
         var throwing = this._player.getItems()[this._player.getThrowing()];
         var throwingSkill = this._player.getThrowingSkill();
         var entity = this._player.getMap().getEntityAt(x, y, this._player.getZ());
-        console.log(entity);
         var string = String.format("You are throwing %s", throwing.describeA());
         if(entity) {
             string += String.format(" at %s", entity.describeA());
         }
         if(points.length > throwingSkill) {
-            string += " - Might not do as much damage at this range"
+            string += " - Might not do as much damage at this range";
         }
         return string;
     },
