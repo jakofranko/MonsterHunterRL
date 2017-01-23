@@ -16,7 +16,10 @@ Game.EntityRepository.define('Owen', {
     attackValue: 10,
     sightRadius: 6,
     inventorySlots: 22,
-    items: ['kukri', 'shotgun', 'grenade', 'grenade', 'shotgun shell'],
+    items: ['kukri', 'grenade', 'grenade', 'shotgun shell'],
+    equipment: {
+        rightHand: 'shotgun'
+    },
     mixins: [
         Game.EntityMixins.Sight,
         Game.EntityMixins.PlayerActor,
@@ -49,7 +52,11 @@ Game.EntityRepository.define('Julie', {
     attackValue: 10,
     sightRadius: 6,
     inventorySlots: 22,
-    items: ['knife', 'rifle', 'pistol', 'lead bullet'],
+    items: ['rifle', 'lead bullet'],
+    equipment: {
+        rightHand: 'pistol',
+        leftHand: 'knife'
+    },
     mixins: [
         Game.EntityMixins.Sight,
         Game.EntityMixins.PlayerActor,
@@ -82,7 +89,12 @@ Game.EntityRepository.define('Franks', {
     attackValue: 10,
     sightRadius: 6,
     inventorySlots: 22,
-    items: ['long sword', 'balistic vest', 'pistol', 'shotgun shell'],
+    items: ['lead bullet'],
+    equipment: {
+        rightHand: 'long sword',
+        leftHand: 'pistol',
+        body: 'balistic vest'
+    },
     mixins: [
         Game.EntityMixins.Sight, 
         Game.EntityMixins.PlayerActor, 

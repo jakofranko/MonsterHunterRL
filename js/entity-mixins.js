@@ -108,6 +108,16 @@ Game.EntityMixins.Equipper = {
             head: null,
             feet: null,
         };
+
+        // If an entity starts with equipment, put the items in their designated slots
+        if(template['equipment']) {
+            for(var slot in template['equipment']) {
+                if(this._equipmentSlots[slot] === undefined)
+                    throw new Error('That slot is not defined');
+
+                this._equipmentSlots[slot] = Game.ItemRepository.create(template['equipment'][slot]);
+            }
+        }
     },
     getEquipment: function() {
         var equipment = [];
