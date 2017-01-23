@@ -194,8 +194,7 @@ Game.Screen.TargetBasedScreen = function(template) {
 };
 Game.Screen.TargetBasedScreen.prototype.setup = function(player, startX, startY, offsetX, offsetY) {
     this._player = player;
-    // Store original position. Subtract the offset to make life easy so we don't
-    // always have to remove it.
+    // Store original position. Subtract the offset to make life easy so we don't always have to remove it.
     this._startX = startX - offsetX;
     this._startY = startY - offsetY;
     // Store current cursor position
@@ -213,57 +212,184 @@ Game.Screen.TargetBasedScreen.prototype.setup = function(player, startX, startY,
             visibleCells[x + "," + y] = true;
         });
     this._visibleCells = visibleCells;
+
+    // Cache for the current cursor path points, one for rendering (with no offset) and the other to store the real map path (with offsets)
+    this._renderPath = [{x: this._startX, y: this._startY}];
+    this._realPath = [{x: this._startX, y: this._startY}];
 };
 Game.Screen.TargetBasedScreen.prototype.render = function(display) {
     Game.Screen.playScreen.renderTiles.call(Game.Screen.playScreen, display);
 
-    // Draw a line from the start to the cursor.
-    var points = Game.Geometry.getLine(this._startX, this._startY, this._cursorX, this._cursorY);
-
-    // Render stars along the line.
-    for (var i = 1, l = points.length; i < l; i++) {
-        if(i == l - 1) {
-            display.drawText(points[i].x, points[i].y, '%c{white}X');
-        } else {
-            display.drawText(points[i].x, points[i].y, '%c{white}*');    
-        }
-        
+    // Render stars along the path.
+    for (var i = 1, l = this._renderPath.length; i < l; i++) {
+        if(i == l - 1)
+            display.drawText(this._renderPath[i].x, this._renderPath[i].y, '%c{white}X');
+        else
+            display.drawText(this._renderPath[i].x, this._renderPath[i].y, '%c{white}*');    
     }
 
     // Render the caption at the bottom.
-    display.drawText(0, Game.getScreenHeight() - 1, 
-        this._captionFunction(this._cursorX + this._offsetX, this._cursorY + this._offsetY));
+    display.drawText(
+        0,
+        Game.getScreenHeight() - 1, 
+        this._captionFunction(this._cursorX + this._offsetX, this._cursorY + this._offsetY)
+    );
 };
 Game.Screen.TargetBasedScreen.prototype.handleInput = function(inputType, inputData) {
     // Move the cursor
     if (inputType == 'keydown') {
-        if (inputData.keyCode === ROT.VK_LEFT) {
+        if(inputData.keyCode === ROT.VK_LEFT)
             this.moveCursor(-1, 0);
-        } else if (inputData.keyCode === ROT.VK_RIGHT) {
+        else if(inputData.keyCode === ROT.VK_RIGHT)
             this.moveCursor(1, 0);
-        } else if (inputData.keyCode === ROT.VK_UP) {
+        else if(inputData.keyCode === ROT.VK_UP)
             this.moveCursor(0, -1);
-        } else if (inputData.keyCode === ROT.VK_DOWN) {
+        else if(inputData.keyCode === ROT.VK_DOWN)
             this.moveCursor(0, 1);
-        } else if (inputData.keyCode === ROT.VK_ESCAPE) {
+        else if(inputData.keyCode === ROT.VK_ESCAPE)
             Game.Screen.playScreen.setSubScreen(undefined);
-        } else if (inputData.keyCode === ROT.VK_RETURN) {
+        else if(inputData.keyCode === ROT.VK_RETURN)
             this.executeOkFunction();
-        }
+        
+        if(inputData.keyCode !== ROT.VK_RETURN)
+            Game.refresh();
     }
-    Game.refresh();
 };
 Game.Screen.TargetBasedScreen.prototype.moveCursor = function(dx, dy) {
     // Make sure we stay within bounds.
     this._cursorX = Math.max(0, Math.min(this._cursorX + dx, Game.getScreenWidth()));
     // We have to save the last line for the caption.
     this._cursorY = Math.max(0, Math.min(this._cursorY + dy, Game.getScreenHeight() - 1));
+
+    // Store the line between the start and the cursor
+    this._renderPath = Game.Geometry.getLine(this._startX, this._startY, this._cursorX, this._cursorY);
+    this._realPath = Game.Geometry.getLine(this._startX + this._offsetX, this._startY + this._offsetY, this._cursorX + this._offsetX, this._cursorY + this._offsetY);
 };
 Game.Screen.TargetBasedScreen.prototype.executeOkFunction = function() {
     // Switch back to the play screen.
     Game.Screen.playScreen.setSubScreen(undefined);
     // Call the OK function and end the player's turn if it return true.
-    if (this._okFunction && this._okFunction(this._cursorX + this._offsetX, this._cursorY + this._offsetY)) {
+    if (this._okFunction && this._okFunction(this._cursorX + this._offsetX, this._cursorY + this._offsetY))
+        this._player.getMap().getEngine().unlock();
+};
+
+// Menu screens
+Game.Screen.MenuScreen = function(template) {
+    template = template || {};
+
+    this._player = null;
+
+    // Display settings
+    this._caption = template['caption'] || 'Menu';
+    this._outerPadding = template['outerPadding'] || 4;
+    this._innerPadding = template['innerPadding'] || 2;
+    this._width = template['width'] || Game.getScreenWidth() - this._outerPadding;
+    this._height = template['height'] || Game.getScreenHeight() - this._outerPadding;
+    this._textWidth = this._width - this._innerPadding;
+    this._verticalChar = template['verticalChar'] || '|';
+    this._horizontalChar = template['horizontalChar'] || '-';
+    this._cornerChar = template['cornerChar'] || '+';
+    this._highlightColor = template['highlightColor'] || Game.Palette.blue;
+
+    // Menu item settings
+    this._currentIndex = template['currentIndex'] || 0;
+    this._menuItems = template['menuItems'] || [];
+    this._menuActions = template['menuActions'] || [];
+    this._buildMenuItems = template['buildMenuItems'] || function() {
+        // The the value of each menu item should be an array of arrays, where the first value of each sub array is a function reference, and the second value is an array of parameters, such that the menu action can be called via menuAction[i][0].apply(this, menuAction[i][1]). This data structure allows for as many function calls with as many arguments to be called sequentially by a single menu action.
+        var exampleMenuItem = {
+            'Example 1': [[console.log, ['This is an example', ', and another.']], [console.log, ['And another!']]],
+            'Example 2': [[console.log, ['This is another example', ', and another.']], [console.log, ['And another!!']]]
+        };
+        for(var item in exampleMenuItem) {
+            this._menuItems.push(item);
+            this._menuActions.push(exampleMenuItem[item]);
+        }
+    };
+    this._okFunction = template['ok'] || function() {
+        var menuActions = this._menuActions[this._currentIndex];
+        for (var i = 0; i < menuActions.length; i++) {
+            if(menuActions[i].length !== 2 && menuActions[i].length !== 3)
+                throw new Error('Incorrectly formatted action type:', menuActions[i]);
+            var actionFunc = menuActions[i][0],
+                actionArgs = menuActions[i][1],
+                actionContext = (menuActions[i].length === 3) ? menuActions[i][2] : actionFunc;
+
+            actionFunc.apply(actionContext, actionArgs);
+        }
+        return true;
+    };
+};
+Game.Screen.MenuScreen.prototype.setup = function(player, builderArgs) {
+    this._player = player;
+    this._currentIndex = 0; // reset current index to 0
+    this._menuItems = []; // clear out old menu items;
+    this._menuActions = []; // clear out old menu items;
+    this._buildMenuItems.apply(this, builderArgs);
+};
+Game.Screen.MenuScreen.prototype.render = function(display) {
+    var startX = this._outerPadding,
+        startY = this._outerPadding;
+
+    // Draw caption
+    display.drawText(
+        Math.round(this._width / 2) - Math.round(this._caption.length / 2),
+        startY - 1,
+        '%c{' + Game.Palette.blue + '}' + this._caption + '%c{}'
+    );
+    // Draw menu box
+    for (var row = 0; row < this._height; row++) {
+        if(row === 0 || row === this._height - 1) {
+            display.drawText(
+                startX,
+                startY + row,
+                this._cornerChar.rpad(this._horizontalChar, this._width - 2) + this._cornerChar,
+                this._width
+            );
+        } else {
+            display.drawText(
+                startX,
+                startY + row,
+                this._verticalChar.rpad(" ", this._width - 2) + this._verticalChar,
+                this._width
+            );
+        }
+    }
+
+    // Draw menu items
+    for (var item = 0; item < this._menuItems.length; item++) {
+        var highlight;
+        if(item === this._currentIndex)
+            highlight = '%b{' + this._highlightColor + '}';
+        else
+            highlight = '%b{}';
+
+        display.drawText(
+            startX + this._innerPadding,
+            startY + this._innerPadding + item,
+            highlight + this._menuItems[item]
+        );
+    }
+};
+Game.Screen.MenuScreen.prototype.handleInput = function(inputType, inputData) {
+    // Move the cursor
+    if(inputType == 'keydown') {
+        if(inputData.keyCode === ROT.VK_UP && this._currentIndex > 0)
+            this._currentIndex--;
+        else if(inputData.keyCode === ROT.VK_DOWN && this._currentIndex < this._menuItems.length - 1)
+            this._currentIndex++;
+        else if(inputData.keyCode === ROT.VK_ESCAPE)
+            Game.Screen.playScreen.setSubScreen(undefined);
+        else if(inputData.keyCode === ROT.VK_RETURN)
+            this.executeOkFunction();
+    }
+    Game.refresh();
+};
+Game.Screen.MenuScreen.prototype.executeOkFunction = function() {
+    // Switch back to the play screen.
+    Game.Screen.playScreen.setSubScreen(undefined);
+    // Call the OK function and end the player's turn if it return true.
+    if (this._okFunction && this._okFunction()) {
         this._player.getMap().getEngine().unlock();
     }
 };

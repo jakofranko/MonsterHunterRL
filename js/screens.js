@@ -9,12 +9,114 @@ Game.Screen.startScreen = new Game.Screen.basicScreen({
         display.drawText((w/2) - 8, 5, "%c{yellow}Monster Hunter RL");
         display.drawText((w/2) - 15, 7, "Press [?] at any time for help");
         display.drawText((w/2) - 12, 8, "Press [Enter] to start!");
+        display.drawText((w/2) - 3, h - 1, "v0.0.2");
     },
     handleInput: function(inputType, inputData) {
         // When [Enter] is pressed, go to the play screen
         if(inputType === 'keydown' && inputData.keyCode === ROT.VK_RETURN) {
             Game.switchScreen(Game.Screen.characterSelectScreen);
+<<<<<<< HEAD
         }
+    }
+});
+
+Game.Screen.characterSelectScreen = new Game.Screen.basicScreen({
+    enter: function() {
+        this._playerCharacterNames = [
+            'Owen',
+            'Julie',
+            'Franks',
+            'Chastity',
+            'Mitchell'
+        ];
+        this._playerCharacters = [];
+        for (var i = 0; i < this._playerCharacterNames.length; i++) {
+            this._playerCharacters.push(Game.EntityRepository.create(this._playerCharacterNames[i]));
+        }
+        this._description = null;
+        this._stats1 = null;
+        this._stats2 = null;
+        this._currentIndex = 0;
+        this.updateDescription();
+    },
+    exit: function() {},
+    render: function(display) {
+        var w = Game.getScreenWidth(),
+            h = Game.getScreenHeight(),
+            centerX = Math.round(w / 2),
+            centerY = Math.round(h / 2),
+            caption = "Character Select",
+            descriptionWidth = 30,
+            nameSpacing = 5,
+            namesLength = 0;
+
+        // Caption
+        display.drawText(centerX - Math.round(caption.length / 2), 3, caption);
+
+        // Display Description
+        if(this._description) {
+            display.drawText(centerX - Math.round(descriptionWidth / 2), centerY - 5, this._description, descriptionWidth);
+        }
+
+        // Display Stats
+        if(this._stats1 && this._stats2) {
+            display.drawText(centerX - Math.round(this._stats1.length / 2), centerY, this._stats1);
+            display.drawText(centerX - Math.round(this._stats2.length / 2), centerY + 1, this._stats2);
+        }
+
+        // Get total name width
+        for (var i = 0; i < this._playerCharacterNames.length; i++) {
+            namesLength += this._playerCharacterNames[i].length + nameSpacing;
+        }
+
+        // Display PC Names
+        var startX = centerX - Math.round(namesLength / 2);
+        // var startX = 0;
+        for (var j = 0; j < this._playerCharacters.length; j++) {
+            var color = (j === this._currentIndex) ? Game.Palette.white : Game.Palette.grey;
+            var name = this._playerCharacters[j].getName();
+            var renderedName = '%c{' + color + '}' + this._playerCharacters[j].getName() + '%c{}';
+            display.drawText(startX, centerY + 5, renderedName);
+            startX += name.length + nameSpacing;
+        }
+    },
+    handleInput: function(inputType, inputData) {
+        // When [Enter] is pressed, go to the play screen
+        if(inputType === 'keydown') {
+            if(inputData.keyCode === ROT.VK_RETURN) {
+                var selectedCharacter = this._playerCharacters[this._currentIndex].getName();
+                Game.setPlayerCharacter(selectedCharacter);
+                Game.switchScreen(Game.Screen.playScreen);
+            } else if(inputData.keyCode === ROT.VK_LEFT && this._currentIndex > 0) {
+                this._currentIndex--;
+                this.updateDescription();
+            } else if(inputData.keyCode === ROT.VK_RIGHT && this._currentIndex < this._playerCharacterNames.length - 1) {
+                this._currentIndex++;
+                this.updateDescription();
+            }
+            Game.refresh();
+=======
+>>>>>>> master
+        }
+    },
+    updateDescription: function() {
+        this._description = this._playerCharacters[this._currentIndex].describe();
+        this._stats1 = this.renderStats1(this._playerCharacters[this._currentIndex]);
+        this._stats2 = this.renderStats2(this._playerCharacters[this._currentIndex]);
+    },
+    renderStats1: function(entity) {
+        var str = entity.getStr(),
+            dex = entity.getDex(),
+            int = entity.getInt();
+
+        return "Strength: " + str + " Dexterity: " + dex + " Intelligence: " + int;
+    },
+    renderStats2: function(entity) {
+        var will = entity.getWill(),
+            per = entity.getPer(),
+            tough = entity.getTough(),
+            odd = entity.getOdd();
+        return "Willpower: " + will + " Perception: " + per + " Toughness: " + tough + " Odd: " + odd;
     }
 });
 
@@ -197,6 +299,7 @@ Game.Screen.playScreen = new Game.Screen.basicScreen({
         }
 
         // Otherwise, handle input normally for this screen
+        // NOTE: If you do not 'return' when handling the input, pressing the key will count as your turn
         if (inputType === 'keydown') {
             if (inputData.keyCode === ROT.VK_LEFT) {
                 this.move(-1, 0, 0);
@@ -216,13 +319,40 @@ Game.Screen.playScreen = new Game.Screen.basicScreen({
                 return;
             } else if (inputData.keyCode === ROT.VK_E) {
                 if(inputData.shiftKey) {
+<<<<<<< HEAD
                     Game.Screen.equipmentScreen.enter(this._player);
                     this.setSubScreen(Game.Screen.equipmentScreen);
                 } else {
                     // Show the drop screen
                     this.showItemsSubScreen(Game.Screen.eatScreen, this._player.getItems(), 'You have nothing to eat.');
+=======
+                    this.showItemsSubScreen(Game.Screen.eatScreen, this._player.getItems(), 'You have nothing to eat.');
+                } else {
+                    Game.Screen.equipmentScreen.enter(this._player);
+                    this.setSubScreen(Game.Screen.equipmentScreen);
+>>>>>>> master
                 }
                 return;
+            } else if(inputData.keyCode === ROT.VK_F && this._player.hasMixin('RangedAttacker')) {
+                if(this._player.hasRangedEquipped()) {
+                    var offsets = this.getScreenOffsets();
+                    Game.Screen.shootScreen.setup(this._player, this._player.getX(), this._player.getY(), offsets.x, offsets.y);
+                    this.setSubScreen(Game.Screen.shootScreen);
+                    return;
+                } else {
+                    Game.sendMessage(this._player, 'You do not have any ranged weapons equipped');
+                    Game.refresh();
+                    return;
+                }
+            } else if(inputData.keyCode === ROT.VK_R) {
+                if(this._player.hasMixin('Equipper')) {
+                    if(this._player.getSlot('rightHand') && this._player.getSlot('rightHand').hasMixin('UsesAmmo'))
+                        this._player.reload('rightHand');
+                    if(this._player.getSlot('leftHand') && this._player.getSlot('leftHand').hasMixin('UsesAmmo'))
+                        this._player.reload('leftHand');
+                } else {
+                    return;
+                }
             } else if (inputData.keyCode === ROT.VK_W) {
                 if (inputData.shiftKey) {
                     // Show the wear screen
@@ -664,18 +794,46 @@ Game.Screen.lookScreen = new Game.Screen.TargetBasedScreen({
         }
     }
 });
+Game.Screen.shootScreen = new Game.Screen.TargetBasedScreen({
+    okFunction: function(x, y) {
+        var equipment = this._player.getEquipmentSlots(),
+            entity = false,
+            wall = false,
+            z = this._player.getZ();
+        for (var i = 0; i < this._realPath.length; i++) {
+            entity = this._player.getMap().getEntityAt(this._realPath[i].x, this._realPath[i].y, z);
+            wall = this._player.getMap().getTile(this._realPath[i].x, this._realPath[i].y, z).describe() === 'wall';
+
+            if(wall)
+                break;
+            else if(entity && (this._realPath[i].x !== this._startX + this._offsetX || this._realPath[i].y !== this._startY + this._offsetY))
+                break;
+        }
+
+        if(entity) {
+            if(equipment.rightHand && equipment.rightHand.getType() === 'ranged')
+                this._player.shoot(entity, 'rightHand');
+            if(equipment.leftHand && equipment.leftHand.getType() === 'ranged')
+                this._player.shoot(entity, 'leftHand');
+        } else if(wall) {
+            Game.sendMessage(this._player, "You shoot the wall!");
+        } else {
+            Game.sendMessage(this._player, 'You shoot wildly and miss!');
+        }
+        return true;
+    }
+});
 Game.Screen.throwTargetScreen = new Game.Screen.TargetBasedScreen({
     captionFunction: function(x, y, points) {
         var throwing = this._player.getItems()[this._player.getThrowing()];
         var throwingSkill = this._player.getThrowingSkill();
         var entity = this._player.getMap().getEntityAt(x, y, this._player.getZ());
-        console.log(entity);
         var string = String.format("You are throwing %s", throwing.describeA());
         if(entity) {
             string += String.format(" at %s", entity.describeA());
         }
         if(points.length > throwingSkill) {
-            string += " - Might not do as much damage at this range"
+            string += " - Might not do as much damage at this range";
         }
         return string;
     },
@@ -701,10 +859,11 @@ Game.Screen.helpScreen = new Game.Screen.basicScreen({
         display.drawText(0, y++, '[>] to go down stairs');
         display.drawText(0, y++, '[,] to pick up items');
         display.drawText(0, y++, '[d] to drop items');
-        display.drawText(0, y++, '[e] to eat items');
-        display.drawText(0, y++, '[w] to wield items');
-        display.drawText(0, y++, '[W] to wear items');
+        display.drawText(0, y++, '[e] to equip items');
+        display.drawText(0, y++, '[E] to eat items');
+        display.drawText(0, y++, '[r] to reload');
         display.drawText(0, y++, '[t] to throw items');
+        display.drawText(0, y++, '[f] to fire ranged weapons');
         display.drawText(0, y++, '[x] to examine items');
         display.drawText(0, y++, '[;] to look around you');
         display.drawText(0, y++, '[?] to show this help screen');

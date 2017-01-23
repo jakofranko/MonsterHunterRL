@@ -36,13 +36,23 @@ Game.ItemMixins.Edible = {
 Game.ItemMixins.Equippable = {
     name: 'Equippable',
     init: function(template) {
+        this._dice = template['dice'] || '0d0';
         this._attackValue = template['attackValue'] || 0;
+        this._accuracyValue = template['accuracyValue'] || 0;
+        this._attackStatModifier = template['statModifier'] || null,
         this._defenseValue = template['defenseValue'] || 0;
+<<<<<<< HEAD
         this._slotLocations = template['slotLocations'] || ['rightHand', 'leftHand'];
+=======
+        this._defenseStatModifier = template['statModifier'] || null,
+        this._slotLocations = template['slotLocations'] || ['rightHand', 'leftHand'];
+        this._type = template['type'] || 'melee';
+        this._hands = template['hands'] || null; // or 1 or 2
+>>>>>>> master
         this._equipped = template['equipped'] || false;
     },
     getAttackValue: function() {
-        return this._attackValue;
+        return this.rollDice() + this._attackValue;
     },
     getDefenseValue: function() {
         return this._defenseValue;
@@ -50,21 +60,46 @@ Game.ItemMixins.Equippable = {
     getSlotLocations: function() {
         return this._slotLocations;
     },
+<<<<<<< HEAD
+    equipped: function() {
+        this._equipped = true;
+    },
+    unequipped: function() {
+        this._equipped = false;
+=======
+    getType: function() {
+        return this._type;
+    },
+    getHands: function() {
+        return this._hands;
+    },
+    getAttackStatModifier: function() {
+        return this._attackStatModifier;
+    },
+    getDefenseStatModifier: function() {
+        return this._defenseStatModifier;
+    },
     equipped: function() {
         this._equipped = true;
     },
     unequipped: function() {
         this._equipped = false;
     },
+    rollDice: function() {
+        var dice = this._dice.split("d"),
+            num = dice[0],
+            sides = dice[1],
+            total = 0;
+
+        for (var i = 0; i < num; i++) {
+            total += Math.floor(Math.random() * sides) + 1;
+        }
+        return total;
+>>>>>>> master
+    },
     listeners: {
         'details': function() {
-            var results = [];
-            if (this._wieldable) {
-                results.push({key: 'attack', value: this.getAttackValue()});
-            }
-            if (this._wearable) {
-                results.push({key: 'defense', value: this.getDefenseValue()});
-            }
+            var results = [{'test': "I need to come up with a real description for this"}];
             return results;
         }
     }
@@ -94,6 +129,34 @@ Game.ItemMixins.Stackable = {
         } else {
             this._count--;
         }
+        if(this._count < 0)
+            this._count = 0;
+    }
+};
+Game.ItemMixins.UsesAmmo = {
+    name: 'UsesAmmo',
+    init: function(template) {
+        this._clipSize = template['clipSize'] || 10;
+        this._ammoType = template['ammoType'] || 'lead bullet';
+        this._ammo = template['ammo'] || Game.ItemRepository.create(this._ammoType, { count: this._clipSize });
+    },
+    getClipSize: function() {
+        return this._clipSize;
+    },
+    getAmmoType: function() {
+        return this._ammoType;
+    },
+    getAmmo: function() {
+        return this._ammo;
+    },
+    setAmmo: function(ammo) {
+        this._ammo = ammo;
+    },
+    addAmmo: function(amount) {
+        this._ammo.addToStack(amount);
+    },
+    removeAmmo: function(amount) {
+        this._ammo.removeFromStack(amount);
     }
 };
 Game.ItemMixins.Throwable = {
@@ -133,7 +196,10 @@ Game.ItemMixins.Container = {
         return this._items[i];
     },
     addItem: function(entity, index, amount) {
+<<<<<<< HEAD
         debugger;
+=======
+>>>>>>> master
         if(!entity.hasMixin('InventoryHolder') && !entity.hasMixin('Container')) {
             return false;
         }
@@ -146,7 +212,10 @@ Game.ItemMixins.Container = {
 
     },
     removeItem: function(entity, index, amount) {
+<<<<<<< HEAD
         debugger;
+=======
+>>>>>>> master
         if(!entity.hasMixin('InventoryHolder') && !entity.hasMixin('Container')) {
             return false;
         }
