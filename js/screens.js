@@ -9,6 +9,7 @@ Game.Screen.startScreen = new Game.Screen.basicScreen({
         display.drawText((w/2) - 8, 5, "%c{yellow}Monster Hunter RL");
         display.drawText((w/2) - 15, 7, "Press [?] at any time for help");
         display.drawText((w/2) - 12, 8, "Press [Enter] to start!");
+        display.drawText((w/2) - 3, h - 1, "v0.0.2");
     },
     handleInput: function(inputType, inputData) {
         // When [Enter] is pressed, go to the play screen
