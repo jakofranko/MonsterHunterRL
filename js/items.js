@@ -5,15 +5,11 @@ Game.ItemRepository.define('knife', {
     name: 'knife',
     character: ')',
     foreground: Game.Palette.grey,
-<<<<<<< HEAD
-    attackValue: 4,
-=======
     dice: '1d4',
     attackValue: 2,
     statModifier: 'dex',
     type: 'melee',
     hands: 1,
->>>>>>> master
     mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Throwable]
 }, {
     disableRandomCreation: true
@@ -23,15 +19,11 @@ Game.ItemRepository.define('dagger', {
     name: 'dagger',
     character: ')',
     foreground: Game.Palette.grey,
-<<<<<<< HEAD
-    attackValue: 5,
-=======
     dice: '1d4',
     attackValue: 5,
     statModifier: 'dex',
     type: 'melee',
     hands: 1,
->>>>>>> master
     mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Throwable]
 }, {
     disableRandomCreation: true
@@ -41,15 +33,11 @@ Game.ItemRepository.define('kukri', {
     name: 'kukri',
     character: ')',
     foreground: Game.Palette.grey,
-<<<<<<< HEAD
-    attackValue: 6,
-=======
     dice: '1d4',
     attackValue: 6,
     statModifier: 'str',
     type: 'melee',
     hands: 1,
->>>>>>> master
     mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Throwable]
 }, {
     disableRandomCreation: true
@@ -59,26 +47,11 @@ Game.ItemRepository.define('long sword', {
     name: 'long sword',
     character: ')',
     foreground: Game.Palette.grey,
-<<<<<<< HEAD
-    attackValue: 10,
-    mixins: [Game.ItemMixins.Equippable]
-}, {
-    disableRandomCreation: true
-});
-
-Game.ItemRepository.define('staff', {
-    name: 'staff',
-    character: ')',
-    foreground: 'yellow',
-    attackValue: 5,
-    defenseValue: 3,
-=======
     dice: '1d8',
     attackValue: 4,
     statModifier: 'str',
     type: 'melee',
     hands: 2,
->>>>>>> master
     mixins: [Game.ItemMixins.Equippable]
 }, {
     disableRandomCreation: true
@@ -89,10 +62,6 @@ Game.ItemRepository.define('shotgun', {
     name: 'shotgun',
     character: '|',
     foreground: Game.Palette.gunmetal,
-<<<<<<< HEAD
-    attackValue: 3,
-    mixins: [Game.ItemMixins.Equippable]
-=======
     dice: '3d4',
     attackValue: 0,
     type: 'ranged',
@@ -100,7 +69,6 @@ Game.ItemRepository.define('shotgun', {
     clipSize: 2,
     ammoType: 'shotgun shell',
     mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.UsesAmmo]
->>>>>>> master
 }, {
     disableRandomCreation: true
 });
@@ -109,17 +77,12 @@ Game.ItemRepository.define('rifle', {
     name: 'rifle',
     character: '|',
     foreground: Game.Palette.gunmetal,
-<<<<<<< HEAD
-    attackValue: 4,
-    mixins: [Game.ItemMixins.Equippable]
-=======
     dice: '1d8',
     attackValue: 4,
     type: 'ranged',
     hands: 2,
     clipSize: 6,
     mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.UsesAmmo]
->>>>>>> master
 }, {
     disableRandomCreation: true
 });
@@ -128,10 +91,6 @@ Game.ItemRepository.define('pistol', {
     name: 'pistol',
     character: '|',
     foreground: Game.Palette.gunmetal,
-<<<<<<< HEAD
-    attackValue: 2,
-    mixins: [Game.ItemMixins.Equippable]
-=======
     dice: '1d6',
     attackValue: 2,
     type: 'ranged',
@@ -164,7 +123,6 @@ Game.ItemRepository.define('shotgun shell', {
     type: 'ammo',
     stackable: true,
     mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Stackable]
->>>>>>> master
 }, {
     disableRandomCreation: true
 });

@@ -5,10 +5,7 @@ Game.Entity = function(properties) {
 	this._y = properties['y'] || 0;
 	this._z = properties['z'] || 0;
     this._speed = properties['speed'] || 1000;
-<<<<<<< HEAD
-=======
     this._level = properties['level'] || 1;
->>>>>>> master
     this._str = properties['str'] || 0;
     this._dex = properties['dex'] || 0;
     this._int = properties['int'] || 0;
@@ -24,12 +21,9 @@ Game.Entity = function(properties) {
 // Make entities inherit all the functionality from glyphs
 Game.Entity.extend(Game.DynamicGlyph);
 
-<<<<<<< HEAD
-=======
 Game.Entity.prototype.getLevel = function() {
     return this._level;
 };
->>>>>>> master
 Game.Entity.prototype.getStr = function() {
     return this._str;
 };
@@ -51,9 +45,6 @@ Game.Entity.prototype.getTough = function() {
 Game.Entity.prototype.getOdd = function() {
     return this._odd;
 };
-<<<<<<< HEAD
-
-=======
 Game.Entity.prototype.increaseStr = function() {
     this._str++;
 };
@@ -82,7 +73,6 @@ Game.Entity.prototype.getStat = function(stat) {
 Game.Entity.prototype.getExperienceValue = function() {
     return Math.max(Math.round(Math.random() * 10), Math.round(Math.random() * 1.5 * (this._str + this._dex + this._int + this._will + this._per + this._tough + this._odd + (this._level * this._level))));
 };
->>>>>>> master
 Game.Entity.prototype.setX = function(x) {
     this._x = x;
 };

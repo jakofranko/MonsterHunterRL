@@ -41,14 +41,10 @@ Game.ItemMixins.Equippable = {
         this._accuracyValue = template['accuracyValue'] || 0;
         this._attackStatModifier = template['statModifier'] || null,
         this._defenseValue = template['defenseValue'] || 0;
-<<<<<<< HEAD
-        this._slotLocations = template['slotLocations'] || ['rightHand', 'leftHand'];
-=======
         this._defenseStatModifier = template['statModifier'] || null,
         this._slotLocations = template['slotLocations'] || ['rightHand', 'leftHand'];
         this._type = template['type'] || 'melee';
         this._hands = template['hands'] || null; // or 1 or 2
->>>>>>> master
         this._equipped = template['equipped'] || false;
     },
     getAttackValue: function() {
@@ -60,13 +56,6 @@ Game.ItemMixins.Equippable = {
     getSlotLocations: function() {
         return this._slotLocations;
     },
-<<<<<<< HEAD
-    equipped: function() {
-        this._equipped = true;
-    },
-    unequipped: function() {
-        this._equipped = false;
-=======
     getType: function() {
         return this._type;
     },
@@ -95,7 +84,6 @@ Game.ItemMixins.Equippable = {
             total += Math.floor(Math.random() * sides) + 1;
         }
         return total;
->>>>>>> master
     },
     listeners: {
         'details': function() {
@@ -196,10 +184,6 @@ Game.ItemMixins.Container = {
         return this._items[i];
     },
     addItem: function(entity, index, amount) {
-<<<<<<< HEAD
-        debugger;
-=======
->>>>>>> master
         if(!entity.hasMixin('InventoryHolder') && !entity.hasMixin('Container')) {
             return false;
         }
@@ -212,10 +196,6 @@ Game.ItemMixins.Container = {
 
     },
     removeItem: function(entity, index, amount) {
-<<<<<<< HEAD
-        debugger;
-=======
->>>>>>> master
         if(!entity.hasMixin('InventoryHolder') && !entity.hasMixin('Container')) {
             return false;
         }

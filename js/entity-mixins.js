@@ -426,7 +426,7 @@ Game.EntityMixins.InventoryHolder = {
     },
     removeItem: function(i, amount) {
         // If the item is in a stack, decrement the stack amount
-        if(this._items[i].hasMixin('Stackable') && this._items[i].amount() > 1)
+        if(this._items[i].hasMixin('Stackable') && this._items[i].amount() > 1) {
             this._items[i].removeFromStack(amount);
             if(this._items[i].amount() <= 0) {
                 this._items[i] = null;
