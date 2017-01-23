@@ -5,7 +5,9 @@ Game.ItemRepository.define('knife', {
     name: 'knife',
     character: ')',
     foreground: Game.Palette.grey,
-    attackValue: 4,
+    dice: '1d4',
+    attackValue: 2,
+    statModifier: 'dex',
     type: 'melee',
     hands: 1,
     mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Throwable]
@@ -17,7 +19,9 @@ Game.ItemRepository.define('dagger', {
     name: 'dagger',
     character: ')',
     foreground: Game.Palette.grey,
+    dice: '1d4',
     attackValue: 5,
+    statModifier: 'dex',
     type: 'melee',
     hands: 1,
     mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Throwable]
@@ -29,7 +33,9 @@ Game.ItemRepository.define('kukri', {
     name: 'kukri',
     character: ')',
     foreground: Game.Palette.grey,
+    dice: '1d4',
     attackValue: 6,
+    statModifier: 'str',
     type: 'melee',
     hands: 1,
     mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Throwable]
@@ -41,22 +47,11 @@ Game.ItemRepository.define('long sword', {
     name: 'long sword',
     character: ')',
     foreground: Game.Palette.grey,
-    attackValue: 10,
+    dice: '1d8',
+    attackValue: 4,
+    statModifier: 'str',
     type: 'melee',
     hands: 2,
-    mixins: [Game.ItemMixins.Equippable]
-}, {
-    disableRandomCreation: true
-});
-
-Game.ItemRepository.define('staff', {
-    name: 'staff',
-    character: ')',
-    foreground: 'yellow',
-    attackValue: 5,
-    defenseValue: 3,
-    type: 'melee',
-    hands: 1,
     mixins: [Game.ItemMixins.Equippable]
 }, {
     disableRandomCreation: true
@@ -67,7 +62,8 @@ Game.ItemRepository.define('shotgun', {
     name: 'shotgun',
     character: '|',
     foreground: Game.Palette.gunmetal,
-    attackValue: 3,
+    dice: '3d4',
+    attackValue: 0,
     type: 'ranged',
     hands: 2,
     clipSize: 2,
@@ -81,6 +77,7 @@ Game.ItemRepository.define('rifle', {
     name: 'rifle',
     character: '|',
     foreground: Game.Palette.gunmetal,
+    dice: '1d8',
     attackValue: 4,
     type: 'ranged',
     hands: 2,
@@ -94,6 +91,7 @@ Game.ItemRepository.define('pistol', {
     name: 'pistol',
     character: '|',
     foreground: Game.Palette.gunmetal,
+    dice: '1d6',
     attackValue: 2,
     type: 'ranged',
     hands: 1,
@@ -108,7 +106,7 @@ Game.ItemRepository.define('lead bullet', {
     character: ':',
     foreground: Game.Palette.gunmetal,
     attackValue: 1,
-    count: 5,
+    count: 20,
     type: 'ammo',
     stackable: true,
     mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Stackable]
@@ -121,7 +119,7 @@ Game.ItemRepository.define('shotgun shell', {
     character: ':',
     foreground: Game.Palette.gunmetal,
     attackValue: 2,
-    count: 2,
+    count: 12,
     type: 'ammo',
     stackable: true,
     mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Stackable]

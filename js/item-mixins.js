@@ -36,7 +36,9 @@ Game.ItemMixins.Edible = {
 Game.ItemMixins.Equippable = {
     name: 'Equippable',
     init: function(template) {
+        this._dice = template['dice'] || '0d0';
         this._attackValue = template['attackValue'] || 0;
+        this._accuracyValue = template['accuracyValue'] || 0;
         this._attackStatModifier = template['statModifier'] || null,
         this._defenseValue = template['defenseValue'] || 0;
         this._defenseStatModifier = template['statModifier'] || null,
@@ -46,7 +48,7 @@ Game.ItemMixins.Equippable = {
         this._equipped = template['equipped'] || false;
     },
     getAttackValue: function() {
-        return this._attackValue;
+        return this.rollDice() + this._attackValue;
     },
     getDefenseValue: function() {
         return this._defenseValue;
@@ -71,6 +73,17 @@ Game.ItemMixins.Equippable = {
     },
     unequipped: function() {
         this._equipped = false;
+    },
+    rollDice: function() {
+        var dice = this._dice.split("d"),
+            num = dice[0],
+            sides = dice[1],
+            total = 0;
+
+        for (var i = 0; i < num; i++) {
+            total += Math.floor(Math.random() * sides) + 1;
+        }
+        return total;
     },
     listeners: {
         'details': function() {
