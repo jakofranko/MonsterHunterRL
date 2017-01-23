@@ -192,7 +192,7 @@ Game.EntityMixins.Equipper = {
             }
 
             if(!successfulReload)
-                Game.sendMessage(this, 'You don\'t have any %ss to reload your %s with.', [ammoType, weapon.describeThe()]);
+                Game.sendMessage(this, 'You don\'t have any %s to reload your %s with.', [ammoType + 's', weapon.describeThe()]);
         }
     },
     unload: function(slot, amount) {
@@ -251,9 +251,9 @@ Game.EntityMixins.ExperienceGainer = {
         var statPointsGained = 0;
         var levelsGained = 0;
         // Loop until we've allocated all points.
-        while (points > 0) {
+        while(points > 0) {
             // Check if adding in the points will surpass the level threshold.
-            if (this._experience + points >= this.getNextLevelExperience()) {
+            if(this._experience + points >= this.getNextLevelExperience()) {
                 // Fill our experience till the next threshold.
                 var usedPoints = this.getNextLevelExperience() - this._experience;
                 points -= usedPoints;
@@ -479,23 +479,31 @@ Game.EntityMixins.MeleeAttacker = {
     init: function(template) {
         this._meleeAttackValue = template['meleeAttackValue'] || 1;
     },
-    getMeleeAttackValue: function() {
+    getMeleeAttackValue: function(slot) {
         var modifier = 0;
         // If we can equip items, then have to take into 
         // consideration weapon and armor
         if(this.hasMixin(Game.EntityMixins.Equipper)) {
-            var equipment = this.getEquipment();
+            if(slot) {
+                var item = this.getSlot(slot),
+                    stat = item.getAttackStatModifier(),
+                    statMod = this.getStat(stat) || 0;
 
-            // damage = weapon attack value + stat mod
-            for(var i = 0; i < equipment.length; i++) {
-                var item = equipment[i];
-                if(equipment[i].getType() === 'melee') {
-                    var stat = item.getAttackStatModifier();
+                return Math.round((item.getAttackValue() + (statMod / 2)) * Math.max(1, this.getLevel() / 2));
+            } else {
+                var equipment = this.getEquipment();
 
-                    modifier += item.getAttackValue();
+                // damage = weapon attack value + stat mod
+                for(var i = 0; i < equipment.length; i++) {
+                    var item = equipment[i];
+                    if(equipment[i].getType() === 'melee') {
+                        var stat = item.getAttackStatModifier();
 
-                    if(stat)
-                        modifier += this.getStat(stat);
+                        modifier += item.getAttackValue();
+
+                        if(stat)
+                            modifier *= Math.max(1, this.getStat(stat) / 2);
+                    }
                 }
             }
         }
@@ -622,8 +630,10 @@ Game.EntityMixins.RangedAttacker = {
             // If a slot is specified, only use that slot's stats + ammo
             if(slot) {
                 var item = this.getSlot(slot),
-                    ammoAttackValue = item.hasMixin('UsesAmmo') ? item.getAmmo().getAttackValue() : 0;
-                return Math.round(item.getAttackValue() + ammoAttackValue) * Math.max(1, this.getDex() / 2);
+                    ammoAttackValue = item.hasMixin('UsesAmmo') ? item.getAmmo().getAttackValue() : 0,
+                    stat = item.getAttackStatModifier(),
+                    statMod = this.getStat(stat) || 0;
+                return Math.round((item.getAttackValue() + ammoAttackValue + (statMod / 2)) * Math.max(1, this.getLevel() / 2));
             } else {
                 var modifier = 0,
                     equipment = this.getEquipment();
@@ -809,21 +819,24 @@ Game.EntityMixins.Thrower = {
     name: 'Thrower',
     init: function(template) {
         this._throwing = template['throwing'] || null;
-        this._throwingSkill = template['throwingSkill'] || 1;
     },
     getThrowing: function() {
         return this._throwing;
     },
-    getThrowingSkill: function() {
-        return this._throwingSkill;
-    },
     setThrowing: function(i) {
         this._throwing = i;
     },
-    increaseThrowingSkill: function(value) {
-        var value = value || 2;
-        this._throwingSkill += 2;
-        Game.sendMessage(this, "You feel better at throwing things!");
+    attemptThrow: function(target) {
+        // TODO: Add accuracy modifier
+        // If the attacker and the target have the same DEX, the attacker
+        // should have a 50% chance of hitting the target
+        var chance = (this.getDex() - target.getDex() + 5) * 10;
+        if(chance > 0 && chance < 100)
+            return Math.round(Math.random() * 100) < chance;
+        else if(chance >= 100)
+            return true;
+        else
+            return false;
     },
     _getTarget: function(targetX, targetY) {
         var linePoints = Game.Geometry.getLine(this.getX(), this.getY(), targetX, targetY);
@@ -856,9 +869,10 @@ Game.EntityMixins.Thrower = {
             // Check to see if there is a destructible entity at targetX and targetY
             var target = this._getTarget(targetX, targetY);
             var entity = this.getMap().getEntityAt(target.x, target.y, this.getZ());
-            if(entity && entity.hasMixin('Destructible')) {
+            var hit = this.attemptThrow(target);
+            if(entity && entity.hasMixin('Destructible') && hit) {
                 // Entity has been found, calculate damage!
-                var attack = this.getThrowingSkill() + item.getAttackValue();
+                var attack = (this.getStr() * 2) + item.getAttackValue();
                 var defense = entity.getDefenseValue();
                 // The distance penalty will decrease as the skill increases
                 var distancePenalty = Math.floor(target.distance / this.getThrowingSkill());

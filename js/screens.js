@@ -231,6 +231,7 @@ Game.Screen.playScreen = new Game.Screen.basicScreen({
                     return;
                 } else {
                     Game.sendMessage(this._player, 'You do not have any ranged weapons equipped');
+                    Game.refresh();
                     return;
                 }
             } else if(inputData.keyCode === ROT.VK_R) {
@@ -687,10 +688,15 @@ Game.Screen.shootScreen = new Game.Screen.TargetBasedScreen({
     okFunction: function(x, y) {
         var equipment = this._player.getEquipmentSlots(),
             entity = false,
+            wall = false,
             z = this._player.getZ();
         for (var i = 0; i < this._realPath.length; i++) {
             entity = this._player.getMap().getEntityAt(this._realPath[i].x, this._realPath[i].y, z);
-            if(entity && (this._realPath[i].x !== this._startX + this._offsetX || this._realPath[i].y !== this._startY + this._offsetY))
+            wall = this._player.getMap().getTile(this._realPath[i].x, this._realPath[i].y, z).describe() === 'wall';
+
+            if(wall)
+                break;
+            else if(entity && (this._realPath[i].x !== this._startX + this._offsetX || this._realPath[i].y !== this._startY + this._offsetY))
                 break;
         }
 
@@ -699,6 +705,8 @@ Game.Screen.shootScreen = new Game.Screen.TargetBasedScreen({
                 this._player.shoot(entity, 'rightHand');
             if(equipment.leftHand && equipment.leftHand.getType() === 'ranged')
                 this._player.shoot(entity, 'leftHand');
+        } else if(wall) {
+            Game.sendMessage(this._player, "You shoot the wall!");
         } else {
             Game.sendMessage(this._player, 'You shoot wildly and miss!');
         }
@@ -743,6 +751,7 @@ Game.Screen.helpScreen = new Game.Screen.basicScreen({
         display.drawText(0, y++, '[d] to drop items');
         display.drawText(0, y++, '[e] to equip items');
         display.drawText(0, y++, '[E] to eat items');
+        display.drawText(0, y++, '[r] to reload');
         display.drawText(0, y++, '[t] to throw items');
         display.drawText(0, y++, '[f] to fire ranged weapons');
         display.drawText(0, y++, '[x] to examine items');
