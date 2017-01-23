@@ -45,11 +45,34 @@ Game.Entity.prototype.getTough = function() {
 Game.Entity.prototype.getOdd = function() {
     return this._odd;
 };
+Game.Entity.prototype.increaseStr = function() {
+    this._str++;
+};
+Game.Entity.prototype.increaseDex = function() {
+    this._dex++;
+};
+Game.Entity.prototype.increaseInt = function() {
+    this._int++;
+};
+Game.Entity.prototype.increaseWill = function() {
+    this._will++;
+};
+Game.Entity.prototype.increasePer = function() {
+    this._per++;
+};
+Game.Entity.prototype.increaseTough = function() {
+    this._tough++;
+};
+Game.Entity.prototype.increaseOdd = function() {
+    this._odd++;
+};
 Game.Entity.prototype.getStat = function(stat) {
     var privateStat = "_" + stat;
     return this[privateStat];
 };
-
+Game.Entity.prototype.getExperienceValue = function() {
+    return Math.max(Math.round(Math.random() * 10), Math.round(Math.random() * 1.5 * (this._str + this._dex + this._int + this._will + this._per + this._tough + this._odd + (this._level * this._level))));
+};
 Game.Entity.prototype.setX = function(x) {
     this._x = x;
 };

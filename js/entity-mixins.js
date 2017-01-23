@@ -220,29 +220,36 @@ Game.EntityMixins.ExperienceGainer = {
     name: 'ExperienceGainer',
     init: function(template) {
         this._experience = template['experience'] || 0;
-        this._statPointsPerLevel = template['statPointsPerLevel'] || 1;
         this._statPoints = 0;
+        this._skillPoints = 0;
         // Determine what stats can be levelled up.
-        this._statOptions = [];
-        if (this.hasMixin('Destructible')) {
-            this._statOptions.push(['Increase defense value', this.increaseDefenseValue]);   
-            this._statOptions.push(['Increase max health', this.increaseMaxHp]);
-        }
-        if (this.hasMixin('Thrower')) {
-            this._statOptions.push(['Increase throwing skill', this.increaseThrowingSkill]);
-        }
+        this._statOptions = [
+            ['Increase Strength', this.increaseStr],
+            ['Increase Dexterity', this.increaseDex],
+            ['Increase Intelligence', this.increaseInt],
+            ['Increase Willpower', this.increaseWill],
+            ['Increase Toughness', this.increaseTough],
+            ['Increase Perception', this.increasePer],
+            ['Increase Odd', this.increaseOdd],
+        ];
     },
     getExperience: function() {
         return this._experience;
     },
     getNextLevelExperience: function() {
-        return (this._level * this._level) * 10;
+        return (this._level * this._level) * 100;
     },
     getStatPoints: function() {
         return this._statPoints;
     },
+    getSkillPoints: function() {
+        return this._skillPoints;
+    },
     setStatPoints: function(statPoints) {
         this._statPoints = statPoints;
+    },
+    setSkillPoints: function(skillPoints) {
+        this._skillPoints = skillPoints;
     },
     getStatOptions: function() {
         return this._statOptions;
@@ -261,8 +268,11 @@ Game.EntityMixins.ExperienceGainer = {
                 // Level up our entity!
                 this._level++;
                 levelsGained++;
-                this._statPoints += this._statPointsPerLevel;
-                statPointsGained += this._statPointsPerLevel;
+                if(this._level % 2)
+                    this._skillPoints++;
+                else
+                    this._statPoints++;
+
             } else {
                 // Simple case - just give the experience.
                 this._experience += points;
@@ -277,19 +287,7 @@ Game.EntityMixins.ExperienceGainer = {
     },
     listeners: {
         onKill: function(victim) {
-            // TODO: Determine how experience is earned
-            var exp = victim.getMaxHp() + victim.getDefenseValue();
-            if (victim.hasMixin('MeleeAttacker')) {
-                exp += victim.getMeleeAttackValue();
-            }
-            // Account for level differences
-            if (victim.hasMixin('ExperienceGainer')) {
-                exp -= (this.getLevel() - victim.getLevel()) * 3;
-            }
-            // Only give experience if more than 0.
-            if (exp > 0) {
-                this.giveExperience(exp);
-            }
+            this.giveExperience(victim.getExperienceValue());
         },
         details: function() {
             return [{key: 'level', value: this.getLevel()}];
