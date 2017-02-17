@@ -127,6 +127,10 @@ Game.EntityRepository.define('Chastity', {
     attackValue: 10,
     sightRadius: 6,
     inventorySlots: 22,
+    items: ['arrow', 'arrow'],
+    equipment: {
+        rightHand: 'bow'
+    },
     mixins: [
         Game.EntityMixins.Sight,
         Game.EntityMixins.PlayerActor,
