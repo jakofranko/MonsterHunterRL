@@ -87,6 +87,21 @@ Game.ItemRepository.define('rifle', {
     disableRandomCreation: true
 });
 
+Game.ItemRepository.define('bow', {
+    name: 'bow',
+    character: '(',
+    foreground: Game.Palette.brown,
+    dice: '1d6',
+    attackValue: 3,
+    type: 'ranged',
+    hands: 2,
+    clipSize: 1,
+    ammoType: 'arrow',
+    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.UsesAmmo]
+}, {
+    disableRandomCreation: true
+});
+
 Game.ItemRepository.define('pistol', {
     name: 'pistol',
     character: '|',
@@ -107,6 +122,19 @@ Game.ItemRepository.define('lead bullet', {
     foreground: Game.Palette.gunmetal,
     attackValue: 1,
     count: 20,
+    type: 'ammo',
+    stackable: true,
+    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Stackable]
+}, {
+    disableRandomCreation: true
+});
+
+Game.ItemRepository.define('arrow', {
+    name: 'arrow',
+    character: '^',
+    foreground: Game.Palette.brown,
+    attackValue: 1,
+    count: 10,
     type: 'ammo',
     stackable: true,
     mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Stackable]
