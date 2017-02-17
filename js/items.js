@@ -3,6 +3,7 @@ Game.ItemRepository = new Game.Repository('items', Game.Item);
 // Weapons
 Game.ItemRepository.define('knife', {
     name: 'knife',
+    description: 'Just a little stabby',
     character: ')',
     foreground: Game.Palette.grey,
     dice: '1d4',
@@ -17,6 +18,7 @@ Game.ItemRepository.define('knife', {
 
 Game.ItemRepository.define('dagger', {
     name: 'dagger',
+    description: 'A bit stabbier than a knife, but not as good at spreading butter', 
     character: ')',
     foreground: Game.Palette.grey,
     dice: '1d4',
@@ -31,6 +33,7 @@ Game.ItemRepository.define('dagger', {
 
 Game.ItemRepository.define('kukri', {
     name: 'kukri',
+    description: 'Great at hacking off limbs of trees and monsters alike',
     character: ')',
     foreground: Game.Palette.grey,
     dice: '1d4',
@@ -45,7 +48,8 @@ Game.ItemRepository.define('kukri', {
 
 Game.ItemRepository.define('long sword', {
     name: 'long sword',
-    character: ')',
+    description: 'Long is relative as this seems to be the average size of swords',
+    character: '/',
     foreground: Game.Palette.grey,
     dice: '1d8',
     attackValue: 4,
@@ -88,6 +92,7 @@ Game.ItemRepository.define('oversized club', {
 // Guns
 Game.ItemRepository.define('shotgun', {
     name: 'shotgun',
+    description: 'Double the barrels, double the fun',
     character: '|',
     foreground: Game.Palette.gunmetal,
     dice: '3d4',
@@ -103,6 +108,7 @@ Game.ItemRepository.define('shotgun', {
 
 Game.ItemRepository.define('rifle', {
     name: 'rifle',
+    description: 'This is my rifle. Well you get the rest',
     character: '|',
     foreground: Game.Palette.gunmetal,
     dice: '1d8',
@@ -115,8 +121,25 @@ Game.ItemRepository.define('rifle', {
     disableRandomCreation: true
 });
 
+Game.ItemRepository.define('bow', {
+    name: 'bow',
+    description: 'Just like Legolas!',
+    character: '(',
+    foreground: Game.Palette.brown,
+    dice: '1d6',
+    attackValue: 3,
+    type: 'ranged',
+    hands: 2,
+    clipSize: 1,
+    ammoType: 'arrow',
+    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.UsesAmmo]
+}, {
+    disableRandomCreation: true
+});
+
 Game.ItemRepository.define('pistol', {
     name: 'pistol',
+    description: 'Do not hold sideways when firing',
     character: '|',
     foreground: Game.Palette.gunmetal,
     dice: '1d6',
@@ -135,6 +158,19 @@ Game.ItemRepository.define('lead bullet', {
     foreground: Game.Palette.gunmetal,
     attackValue: 1,
     count: 20,
+    type: 'ammo',
+    stackable: true,
+    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Stackable]
+}, {
+    disableRandomCreation: true
+});
+
+Game.ItemRepository.define('arrow', {
+    name: 'arrow',
+    character: '^',
+    foreground: Game.Palette.brown,
+    attackValue: 1,
+    count: 10,
     type: 'ammo',
     stackable: true,
     mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Stackable]
@@ -286,6 +322,22 @@ Game.ItemRepository.define('vampire fangs', {
     disableRandomCreation: true
 });
 
+//Artifacts
+Game.ItemRepository.define('Cavity Ridden Dragon Tooth', {
+    name: 'Cavity Ridden Dragon Tooth',
+    description: 'This looks super dangerous. Also kinda gross.', 
+    character: ')',
+    foreground: Game.Palette.yellow,
+    dice: '4d4',
+    attackValue: 6,
+    statModifier: 'dex',
+    type: 'melee',
+    hands: 1,
+    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Throwable]
+}, {
+    disableRandomCreation: true
+});
+
 Game.ItemRepository.define('wight chill', {
     name: 'wight chill',
     character: '&',
@@ -296,6 +348,37 @@ Game.ItemRepository.define('wight chill', {
     type: 'melee',
     slotLocations: ['body'],
     mixins: [Game.ItemMixins.Equippable]
+}, {
+    disableRandomCreation: true
+});
+
+//Artifacts
+Game.ItemRepository.define('Cavity Ridden Dragon Tooth', {
+    name: 'Cavity Ridden Dragon Tooth',
+    description: 'This looks super dangerous. Also kinda gross.', 
+    character: ')',
+    foreground: Game.Palette.yellow,
+    dice: '4d4',
+    attackValue: 6,
+    statModifier: 'dex',
+    type: 'melee',
+    hands: 1,
+    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Throwable]
+}, {
+    disableRandomCreation: true
+});
+
+Game.ItemRepository.define('Extra Long Sword', {
+    name: 'Extra Long Sword',
+    description: 'The mad genius who created this was probably compensating for somethihg', 
+    character: '/',
+    foreground: Game.Palette.gunmetal,
+    dice: '3d8',
+    attackValue: 4,
+    statModifier: 'str',
+    type: 'melee',
+    hands: 1,
+    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Throwable]
 }, {
     disableRandomCreation: true
 });
