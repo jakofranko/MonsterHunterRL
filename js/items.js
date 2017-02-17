@@ -57,6 +57,34 @@ Game.ItemRepository.define('long sword', {
     disableRandomCreation: true
 });
 
+Game.ItemRepository.define('crude axe', {
+    name: 'crude axe',
+    character: '\\',
+    foreground: Game.Palette.grey,
+    dice: '1d6',
+    attackValue: 2,
+    statModifier: 'str',
+    type: 'melee',
+    hands: 1,
+    mixins: [Game.ItemMixins.Equippable]
+}, {
+    disableRandomCreation: true
+});
+
+Game.ItemRepository.define('oversized club', {
+    name: 'oversized club',
+    character: '\\',
+    foreground: Game.Palette.brown,
+    dice: '2d8',
+    attackValue: 0,
+    statModifier: 'str',
+    type: 'melee',
+    hands: 2,
+    mixins: [Game.ItemMixins.Equippable]
+}, {
+    disableRandomCreation: true
+});
+
 // Guns
 Game.ItemRepository.define('shotgun', {
     name: 'shotgun',
@@ -175,6 +203,98 @@ Game.ItemRepository.define('balistic vest', {
     foreground: Game.Palette.grey,
     slotLocations: ['body'],
     defenseValue: 6,
+    mixins: [Game.ItemMixins.Equippable]
+}, {
+    disableRandomCreation: true
+});
+
+Game.ItemRepository.define('rotted leather toga', {
+    name: 'rotted leather toga',
+    character: '[',
+    foreground: Game.Palette.brown,
+    slotLocations: ['body'],
+    defenseValue: 1,
+    mixins: [Game.ItemMixins.Equippable]
+}, {
+    disableRandomCreation: true
+});
+
+// Monster-only items
+Game.ItemRepository.define('zombie claws', {
+    name: 'zombie claws',
+    character: '^',
+    foreground: Game.Palette.grey,
+    dice: '1d4',
+    attackValue: 2,
+    statModifier: 'str',
+    type: 'melee',
+    hands: 1,
+    mixins: [Game.ItemMixins.Equippable]
+}, {
+    disableRandomCreation: true
+});
+Game.ItemRepository.define('werewolf claws', {
+    name: 'werewolf claws',
+    character: '^',
+    foreground: Game.Palette.grey,
+    dice: '1d6',
+    attackValue: 4,
+    statModifier: 'str',
+    type: 'melee',
+    hands: 1,
+    mixins: [Game.ItemMixins.Equippable]
+}, {
+    disableRandomCreation: true
+});
+Game.ItemRepository.define('vampire claws', {
+    name: 'vampire claws',
+    character: '^',
+    foreground: Game.Palette.purple,
+    dice: '2d6',
+    attackValue: 2,
+    statModifier: 'str',
+    type: 'melee',
+    hands: 1,
+    mixins: [Game.ItemMixins.Equippable]
+}, {
+    disableRandomCreation: true
+});
+Game.ItemRepository.define('werwolf fangs', {
+    name: 'werewolf fangs',
+    character: '^',
+    foreground: Game.Palette.bonewhite,
+    dice: '1d6',
+    attackValue: 0,
+    statModifier: 'str',
+    type: 'melee',
+    slotLocations: ['face'],
+    mixins: [Game.ItemMixins.Equippable]
+}, {
+    disableRandomCreation: true
+});
+Game.ItemRepository.define('vampire fangs', {
+    name: 'vampire fangs',
+    character: '^',
+    foreground: Game.Palette.bonewhite,
+    dice: '1d8',
+    attackValue: 0,
+    statModifier: 'str',
+    type: 'melee',
+    slotLocations: ['face'],
+    mixins: [Game.ItemMixins.Equippable]
+}, {
+    disableRandomCreation: true
+});
+
+Game.ItemRepository.define('wight chill', {
+    name: 'wight chill',
+    character: '&',
+    foreground: Game.Palette.bonewhite,
+    dice: '1d8',
+    attackValue: 4,
+    statModifier: 'str',
+    type: 'melee',
+    slotLocations: ['body'],
     mixins: [Game.ItemMixins.Equippable]
 }, {
     disableRandomCreation: true
