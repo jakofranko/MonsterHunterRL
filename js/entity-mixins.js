@@ -179,6 +179,7 @@ Game.EntityMixins.Equipper = {
             leftHand: null,
             body: null,
             head: null,
+            face: null,
             feet: null,
         };
 
@@ -186,7 +187,7 @@ Game.EntityMixins.Equipper = {
         if(template['equipment']) {
             for(var slot in template['equipment']) {
                 if(this._equipmentSlots[slot] === undefined)
-                    throw new Error('That slot is not defined');
+                    throw new Error('The ' + slot + ' slot is not defined');
 
                 this._equipmentSlots[slot] = Game.ItemRepository.create(template['equipment'][slot]);
             }

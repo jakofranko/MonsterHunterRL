@@ -216,6 +216,7 @@ Game.EntityRepository.define('gnome', {
     mixins: [
         Game.EntityMixins.AIActor,
         Game.EntityMixins.Sight,
+        Game.EntityMixins.Equipper,
         Game.EntityMixins.MeleeAttacker,
         Game.EntityMixins.CorpseDropper,
         Game.EntityMixins.Destructible,
@@ -262,6 +263,7 @@ Game.EntityRepository.define('zombie', {
     mixins: [
         Game.EntityMixins.AIActor,
         Game.EntityMixins.Sight,
+        Game.EntityMixins.Equipper,
         Game.EntityMixins.MeleeAttacker,
         Game.EntityMixins.CorpseDropper,
         Game.EntityMixins.Destructible,
@@ -283,6 +285,7 @@ Game.EntityRepository.define('orc', {
     mixins: [
         Game.EntityMixins.AIActor,
         Game.EntityMixins.Sight,
+        Game.EntityMixins.Equipper,
         Game.EntityMixins.MeleeAttacker,
         Game.EntityMixins.CorpseDropper,
         Game.EntityMixins.Destructible,
@@ -308,6 +311,7 @@ Game.EntityRepository.define('wight', {
     mixins: [
         Game.EntityMixins.AIActor,
         Game.EntityMixins.Sight,
+        Game.EntityMixins.Equipper,
         Game.EntityMixins.MeleeAttacker,
         Game.EntityMixins.CorpseDropper,
         Game.EntityMixins.Destructible,
@@ -330,6 +334,7 @@ Game.EntityRepository.define('troll', {
     mixins: [
         Game.EntityMixins.AIActor,
         Game.EntityMixins.Sight,
+        Game.EntityMixins.Equipper,
         Game.EntityMixins.MeleeAttacker,
         Game.EntityMixins.CorpseDropper,
         Game.EntityMixins.Destructible,
@@ -356,6 +361,7 @@ Game.EntityRepository.define('werewolf', {
     mixins: [
         Game.EntityMixins.AIActor,
         Game.EntityMixins.Sight,
+        Game.EntityMixins.Equipper,
         Game.EntityMixins.MeleeAttacker,
         Game.EntityMixins.CorpseDropper,
         Game.EntityMixins.Destructible,
@@ -383,6 +389,7 @@ Game.EntityRepository.define('vampire', {
     mixins: [
         Game.EntityMixins.AIActor,
         Game.EntityMixins.Sight,
+        Game.EntityMixins.Equipper,
         Game.EntityMixins.MeleeAttacker,
         Game.EntityMixins.CorpseDropper,
         Game.EntityMixins.Destructible,

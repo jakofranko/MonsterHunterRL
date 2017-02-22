@@ -256,7 +256,7 @@ Game.ItemRepository.define('rotted leather toga', {
 });
 
 // Monster-only items
-Game.ItemRepository.define('zombie claws', {
+Game.ItemRepository.define('zombie claw', {
     name: 'zombie claws',
     character: '^',
     foreground: Game.Palette.grey,
@@ -269,7 +269,7 @@ Game.ItemRepository.define('zombie claws', {
 }, {
     disableRandomCreation: true
 });
-Game.ItemRepository.define('werewolf claws', {
+Game.ItemRepository.define('werewolf claw', {
     name: 'werewolf claws',
     character: '^',
     foreground: Game.Palette.grey,
@@ -282,7 +282,7 @@ Game.ItemRepository.define('werewolf claws', {
 }, {
     disableRandomCreation: true
 });
-Game.ItemRepository.define('vampire claws', {
+Game.ItemRepository.define('vampire claw', {
     name: 'vampire claws',
     character: '^',
     foreground: Game.Palette.purple,
