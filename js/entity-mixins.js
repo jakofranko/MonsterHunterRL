@@ -41,31 +41,31 @@ Game.EntityMixins.AIActor = {
         return this._friends;
     },
     scanForFriends: function() {
+        var friends = [];
         if(this.hasMixin('Sight')) {
-            var friends = [];
             var radius = this.getSightRadius();
             var entities = this.getMap().getEntitiesWithinRadius(this.getX(), this.getY(), this.getZ(), radius);
             for (var i = 0; i < entities.length; i++) {
                 if((this._friends.indexOf(entities[i].getName()) > -1 || this._friends.indexOf(entities[i].getType()) > -1) && this.canSee(entities[i]))
-                    friends.push(entities[i])
+                    friends.push(entities[i]);
             }
-            return friends;
         }
+        return friends;
     },
     getEnemies: function() {
         return this._enemies;
     },
     scanForEnemies: function() {
+        var enemies = [];
         if(this.hasMixin('Sight')) {
-            var enemies = [];
             var radius = this.getSightRadius();
             var entities = this.getMap().getEntitiesWithinRadius(this.getX(), this.getY(), this.getZ(), radius);
             for (var i = 0; i < entities.length; i++) {
                 if((this._enemies.indexOf(entities[i].getName()) > -1 || this._enemies.indexOf(entities[i].getType()) > -1) && this.canSee(entities[i]))
                     enemies.push(entities[i]);
             }
-            return enemies;
         }
+        return enemies;
     },
     setTarget: function(target) {
         this._target = target;
