@@ -4,6 +4,7 @@ Game.Palette = {
 	yellow: "yellow",
 	green: "green",
 	white: "white",
+	bonewhite: "bonewhite",
 	brown: "brown",
 	purple: "purple",
 	grey: "grey",
