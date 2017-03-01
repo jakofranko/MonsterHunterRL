@@ -625,7 +625,7 @@ Game.EntityMixins.MeleeAttacker = {
                 var meleeSlots = this.getMeleeSlots();
                 for (var i = 0; i < meleeSlots.length; i++) {
                     var slotItem = this.getSlot(meleeSlots[i]);
-                    if(!slotItem)
+                    if(!slotItem || slotItem.getType() !== 'melee')
                         continue;
 
                     hit = this.attemptHit(target);
@@ -805,7 +805,7 @@ Game.EntityMixins.RangedAttacker = {
                 for (var i = 0; i < rangedSlots.length; i++) {
                     var slotItem = this.getSlot(rangedSlots[i]);
 
-                    if(!slotItem)
+                    if(!slotItem || slotItem.getType() !== 'ranged')
                         continue;
 
                     if(slotItem.hasMixin('UsesAmmo') && slotItem.getAmmo().amount() <= 0) {
