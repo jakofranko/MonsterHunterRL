@@ -841,10 +841,11 @@ Game.Screen.loseScreen = new Game.Screen.basicScreen({
     enter: function() { console.log("Entered lose screen."); },
     exit: function() { console.log("Exited lose screen."); },
     render: function(display) {
-        // Render our prompt to the screen
-        for (var i = 0; i < 22; i++) {
-            display.drawText(2, i + 1, "%b{red}You lose! :(");
-        }
+        var w = Game.getScreenWidth();
+        var h = Game.getScreenHeight();
+        // Render prompt to the screen
+        display.drawText((w/2) - 7, 5, "%c{" + Game.Palette.red + "}You have died.");
+        display.drawText((w/2) - 12, 8, "Press [Enter] to restart!");
     },
     handleInput: function(inputType, inputData) {
         if(inputType === 'keydown' && inputData.keyCode === ROT.VK_RETURN) {
