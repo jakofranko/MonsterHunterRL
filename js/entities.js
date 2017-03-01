@@ -1,4 +1,75 @@
 Game.EntityRepository = new Game.Repository('entities', Game.Entity);
+Game.EntityRepository.difficulties = false;
+
+Game.EntityRepository.getDifficulties = function() {
+    if(this._difficulties)
+        return this._difficulties;
+
+    // Note: only returns difficulties for the templates that can be created randomly
+    var difficulties = {};
+    for(var name in this._randomTemplates)
+        difficulties[name] = this._calculateDifficulty(name);
+
+    this._difficulties = difficulties;
+
+    return difficulties;
+};
+Game.EntityRepository.createRandomByDifficulty = function(difficulty, margin) {
+    var difficultyMargin = margin || 0;
+    if(!this._difficulties)
+        throw new Error("The difficulties for entities need to be initialized via getDifficulties");
+
+    var entities = [];
+    for(var name in this._difficulties)
+        if(this._difficulties[name] <= difficulty + difficultyMargin && this._difficulties[name] >= difficulty - difficultyMargin)
+            entities.push(name);
+    if(entities.length <= 0)
+        debugger;
+    return this.create(entities.random());
+};
+Game.EntityRepository._calculateDifficulty = function(name) {
+    var entity = this.create(name);
+    var difficulty = 0;
+    var attr = [
+        'str',
+        'dex',
+        'int',
+        'will',
+        'per',
+        'tough',
+        'odd',
+        'maxHp',
+    ];
+    for (var i = 0; i < attr.length; i++) {
+        // capitalize the attr; \b = word boundary (the beginning of a word)
+        var getter = 'get' + attr[i].replace(/\b\w/g, function(word) { return word.toUpperCase(); });
+        difficulty += entity[getter]();
+    }
+
+    if(entity.hasMixin('MeleeAttacker')) {
+        if(entity.getMeleeAttackStyle() == 'slot') {
+            var meleeSlots = entity.getMeleeSlots();
+            for (var j = 0; j < meleeSlots.length; j++) {
+                difficulty += entity.getMeleeAttackValue(meleeSlots[j], true);
+            }
+        } else {
+            difficulty += entity.getMeleeAttackValue(false, true);
+        }
+    }
+
+    if(entity.hasMixin('RangedAttacker')) {
+        if(entity.getRangedAttackStyle() == 'slot') {
+            var rangedSlots = entity.getRangedSlots();
+            for (var k = 0; k < rangedSlots.length; k++) {
+                difficulty += entity.getRangedAttackValue(rangedSlots[k], true);
+            }
+        } else {
+            difficulty += entity.getRangedAttackValue(false, true);
+        }
+    }
+
+    return difficulty;
+};
 
 // Notes:
 // - For monsters, if you specify a rangedAttackStyle or meleeAttackStyle of 'all', damage will be calculated by summing ALL equipped items and then adding the meleeAttackValue or rangedAttackValue of the entity. This is useful if you want to make a monster that has 'claws' items and attacks from them just represent them using all of their natural weaponry against you. 

@@ -23,14 +23,9 @@ Game.Map = function(width, height, depth, player) {
     this._explored = new Array(this._depth);
     this._setupExploredArray();
 
-    // Create a table which will hold the entities
+    // Create an object which will hold the entities
     this._entities = {};
-    for (var z = 0; z < this._depth; z++) {
-        for (var i = 0; i < 20; i++) {
-            var randomMonster = Game.EntityRepository.createRandom();
-            this.addEntityAtRandomPosition(randomMonster, z);
-        }
-    }
+    this._generateEntities();
 
     // Add the Player
     this.addEntityAtRandomPosition(player, 0);
@@ -204,6 +199,109 @@ Game.Map.prototype.updateEntityPosition = function(entity, oldX, oldY, oldZ) {
 
     // Add the entity to the table of entities
     this._entities[key] = entity;
+};
+
+// TODO: Add additional criteria for spawning entities such as theme/type based on map/z-level
+Game.Map.prototype._generateEntities = function() {
+    debugger;
+    // Get Entity generation settings
+    var entitiyDifficulty = Game.EntityRepository.getDifficulties(),
+        entitiesPerLevel = Game.getEntitiesPerLevel(),
+        difficultyMargin = Game.getDifficultyMargin();
+
+    var uniqueDifficultyVals = Object.values(entitiyDifficulty).filter(function(difficulty, i, arr) {
+        return arr.indexOf(difficulty) === i;
+    });
+    uniqueDifficultyVals.sort(function(a, b) {
+        return a - b;
+    });
+
+    // Get the difference between the unique difficulty values and total z-levels
+    // Depending on which one is bigger, create an object that will represent which 
+    // difficulty should be found on that level
+    var depthDifficultyDiff = this._depth - uniqueDifficultyVals.length,
+        difficultyMap, depthMap, incrementThreshold,
+        difficultyIndex = 0,
+        depthIndex = 0;
+
+    // Depending on the difference between z-levels and number of difficulty levels,
+    // put together a map that will define what difficulty monster to spawn on a given z-level
+    if(depthDifficultyDiff < 0) { // There are more difficulty values than depth levels
+        incrementThreshold = Math.ceil(uniqueDifficultyVals.length / this._depth);
+
+        // Turn difficultyMap into an object
+        difficultyMap = {};
+
+        for (var i = 0; i < uniqueDifficultyVals.length; i++) {
+            if(i !== 0 && i % incrementThreshold === 0)
+                depthIndex++;
+
+            difficultyMap[uniqueDifficultyVals[i]] = depthIndex;
+        }
+
+        debugger;
+        // Check to make sure all z-levels have a monster difficulty
+        var highestDepth = this._depth;
+        for(var difficultyMapValue in difficultyMap) {
+            if(Number(difficultyMapValue) === uniqueDifficultyVals[uniqueDifficultyVals.length - 1]) {
+                highestDepth = difficultyMap[difficultyMapValue];
+                break;
+            }
+        }
+
+        var missingDepthMargin = this._depth - highestDepth;
+        // Adjust for missing depths on the difficulty map. 
+        // Example: there are 6 z-levels, and 8 difficulty values. The increment 
+        // threshold will be 2 (since we round up). If this is true and my math is right,
+        // the 'missingDepthMargin' would be 3. Since this is greater than 0,
+        // we will grab the last 3 difficulty values, and set them to depth levels
+        // 4, 5, and 6 respectively. Note that this causes z-levels 4, 5, and 6 to
+        // get more difficult MUCH faster than the others.
+        if(missingDepthMargin > 0) {
+            var difficultiesToAdjust = [];
+            for(var j = missingDepthMargin + incrementThreshold; j > 0; j--) {
+                var uniqueDifficultyIndex = uniqueDifficultyVals.length - j;
+                difficultiesToAdjust.push(uniqueDifficultyVals[uniqueDifficultyIndex]);
+            }
+            for (var k = 0; k < missingDepthMargin + incrementThreshold; k++) {
+                difficultyMap[difficultiesToAdjust[k]] = this._depth - missingDepthMargin + k - 1;
+            }
+        }
+
+    } else if(depthDifficultyDiff > 0) { // There are more depth levels than difficulty values
+        incrementThreshold = Math.ceil(this._depth / uniqueDifficultyVals.length);
+
+        // Turn depthMap into an object
+        depthMap = {};
+
+        for (var z = 0; z < this._depth; z++) {
+            if(z !== 0 && z % incrementThreshold === 0)
+                difficultyIndex++;
+
+            depthMap[z] = uniqueDifficultyVals[difficultyIndex];
+        }
+    } else { // They are the same so it will just be a one-to-one ratio. Easy!
+
+    }
+
+    // Place the entities!
+    for (var depth = 0; depth < this._depth; depth++) {
+        var currDifficulty = [];
+        if(difficultyMap) {
+            for(var diffVal in difficultyMap) {
+                if(difficultyMap[diffVal] === depth) {
+                    currDifficulty.push(Number(diffVal));
+                }
+            }
+        } else {
+            currDifficulty.push(Number(depthMap[depth]));
+        }
+
+        for(var j = 0; j < entitiesPerLevel; j++) {
+            var entity = Game.EntityRepository.createRandomByDifficulty(currDifficulty.random(), difficultyMargin);
+            this.addEntityAtRandomPosition(entity, depth);
+        }
+    }
 };
 
 // Floors
