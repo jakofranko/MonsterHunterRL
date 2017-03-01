@@ -9,7 +9,7 @@ Game.Screen.startScreen = new Game.Screen.basicScreen({
         display.drawText((w/2) - 8, 5, "%c{yellow}Monster Hunter RL");
         display.drawText((w/2) - 15, 7, "Press [?] at any time for help");
         display.drawText((w/2) - 12, 8, "Press [Enter] to start!");
-        display.drawText((w/2) - 3, h - 1, "v0.0.2");
+        display.drawText((w/2) - 3, h - 1, "v0.0.3");
     },
     handleInput: function(inputType, inputData) {
         // When [Enter] is pressed, go to the play screen
@@ -720,16 +720,13 @@ Game.Screen.shootScreen = new Game.Screen.TargetBasedScreen({
                 break;
         }
 
-        if(entity) {
-            if(equipment.rightHand && equipment.rightHand.getType() === 'ranged')
-                this._player.shoot(entity, 'rightHand');
-            if(equipment.leftHand && equipment.leftHand.getType() === 'ranged')
-                this._player.shoot(entity, 'leftHand');
-        } else if(wall) {
+        if(entity)
+            this._player.shoot(entity);
+        else if(wall)
             Game.sendMessage(this._player, "You shoot the wall!");
-        } else {
+        else
             Game.sendMessage(this._player, 'You shoot wildly and miss!');
-        }
+
         return true;
     }
 });
@@ -863,13 +860,15 @@ Game.Screen.loseScreen = new Game.Screen.basicScreen({
     enter: function() { console.log("Entered lose screen."); },
     exit: function() { console.log("Exited lose screen."); },
     render: function(display) {
-        // Render our prompt to the screen
-        for (var i = 0; i < 22; i++) {
-            display.drawText(2, i + 1, "%b{red}You lose! :(");
-        }
+        var w = Game.getScreenWidth();
+        var h = Game.getScreenHeight();
+        // Render prompt to the screen
+        display.drawText((w/2) - 7, 5, "%c{" + Game.Palette.red + "}You have died.");
+        display.drawText((w/2) - 12, 8, "Press [Enter] to restart!");
     },
     handleInput: function(inputType, inputData) {
         if(inputType === 'keydown' && inputData.keyCode === ROT.VK_RETURN) {
+            Game.Screen.playScreen.setGameEnded(false);
             Game.switchScreen(Game.Screen.startScreen);
         }     
     }

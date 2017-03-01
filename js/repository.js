@@ -5,6 +5,10 @@ Game.Repository = function(name, ctor) {
 	this._ctor = ctor; // ctor = 'constructor'
 };
 
+Game.Repository.prototype.getTemplate = function(name) {
+    return this._templates[name];
+};
+
 // Define a new named template.
 Game.Repository.prototype.define = function(name, template, options) {
     this._templates[name] = template;

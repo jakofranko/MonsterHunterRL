@@ -5,6 +5,10 @@ var Game = {
 	_screenHeight: 24,
 	_playerCharacter: null,
 
+	// Game settings
+	_entitiesPerLevel: 20,
+	_difficultyMargin: 4,
+
 	getDisplay: function() {
 		return this._display;
 	},
@@ -16,6 +20,12 @@ var Game = {
 	},
 	getPlayerCharacter: function() {
 		return this._playerCharacter;
+	},
+	getEntitiesPerLevel: function() {
+		return this._entitiesPerLevel;
+	},
+	getDifficultyMargin: function() {
+		return this._difficultyMargin;
 	},
 	setPlayerCharacter: function(pc) {
 		this._playerCharacter = pc;

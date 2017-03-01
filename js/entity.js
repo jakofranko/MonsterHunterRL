@@ -1,5 +1,6 @@
 Game.Entity = function(properties) {
 	properties = properties || {};
+    this._type = properties['type'] || null;
 	this._alive = true;
 	this._x = properties['x'] || 0;
 	this._y = properties['y'] || 0;
@@ -21,6 +22,9 @@ Game.Entity = function(properties) {
 // Make entities inherit all the functionality from glyphs
 Game.Entity.extend(Game.DynamicGlyph);
 
+Game.Entity.prototype.getType = function() {
+    return this._type;
+};
 Game.Entity.prototype.getLevel = function() {
     return this._level;
 };
