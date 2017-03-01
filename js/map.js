@@ -203,7 +203,6 @@ Game.Map.prototype.updateEntityPosition = function(entity, oldX, oldY, oldZ) {
 
 // TODO: Add additional criteria for spawning entities such as theme/type based on map/z-level
 Game.Map.prototype._generateEntities = function() {
-    debugger;
     // Get Entity generation settings
     var entitiyDifficulty = Game.EntityRepository.getDifficulties(),
         entitiesPerLevel = Game.getEntitiesPerLevel(),
@@ -239,7 +238,6 @@ Game.Map.prototype._generateEntities = function() {
             difficultyMap[uniqueDifficultyVals[i]] = depthIndex;
         }
 
-        debugger;
         // Check to make sure all z-levels have a monster difficulty
         var highestDepth = this._depth;
         for(var difficultyMapValue in difficultyMap) {
