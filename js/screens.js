@@ -701,16 +701,13 @@ Game.Screen.shootScreen = new Game.Screen.TargetBasedScreen({
                 break;
         }
 
-        if(entity) {
-            if(equipment.rightHand && equipment.rightHand.getType() === 'ranged')
-                this._player.shoot(entity, 'rightHand');
-            if(equipment.leftHand && equipment.leftHand.getType() === 'ranged')
-                this._player.shoot(entity, 'leftHand');
-        } else if(wall) {
+        if(entity)
+            this._player.shoot(entity);
+        else if(wall)
             Game.sendMessage(this._player, "You shoot the wall!");
-        } else {
+        else
             Game.sendMessage(this._player, 'You shoot wildly and miss!');
-        }
+
         return true;
     }
 });

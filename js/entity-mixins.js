@@ -182,6 +182,14 @@ Game.EntityMixins.Equipper = {
             face: null,
             feet: null,
         };
+        this._meleeSlots = template['meleeSlots'] || [
+            'rightHand',
+            'leftHand'
+        ];
+         this._rangedSlots = template['rangedSlots'] || [
+            'rightHand',
+            'leftHand'
+        ];
 
         // If an entity starts with equipment, put the items in their designated slots
         if(template['equipment']) {
@@ -207,6 +215,12 @@ Game.EntityMixins.Equipper = {
     },
     getSlot: function(slot) {
         return this._equipmentSlots[slot];
+    },
+    getMeleeSlots: function() {
+        return this._meleeSlots;
+    },
+    getRangedSlots: function() {
+        return this._rangedSlots;
     },
     hasRangedEquipped: function() {
         return (this._equipmentSlots.rightHand && this._equipmentSlots.rightHand.getType() === 'ranged') || 
@@ -560,18 +574,24 @@ Game.EntityMixins.MeleeAttacker = {
     groupName: 'Attacker',
     init: function(template) {
         this._meleeAttackValue = template['meleeAttackValue'] || 1;
+        this._meleeAttackStyle = template['meleeAttackStyle'] || 'slot';
     },
-    getMeleeAttackValue: function(slot) {
-        var modifier = 0;
+    getMeleeAttackValue: function(slot, max) {
+        var max = max || false,
+            modifier = 0;
         // If we can equip items, then have to take into 
         // consideration weapon and armor
         if(this.hasMixin(Game.EntityMixins.Equipper)) {
             if(slot) {
-                var item = this.getSlot(slot),
-                    stat = item.getAttackStatModifier(),
+                var item = this.getSlot(slot);
+
+                if(!item)
+                    return 0;
+
+                var stat = item.getAttackStatModifier(),
                     statMod = this.getStat(stat) || 0;
 
-                return Math.round((item.getAttackValue() + (statMod / 2)) * Math.max(1, this.getLevel() / 2));
+                return Math.round((item.getAttackValue(max) + (statMod / 2)) * Math.max(1, this.getLevel() / 2));
             } else {
                 var equipment = this.getEquipment();
 
@@ -584,7 +604,7 @@ Game.EntityMixins.MeleeAttacker = {
                         modifier += item.getAttackValue();
 
                         if(stat)
-                            modifier *= Math.max(1, this.getStat(stat) / 2);
+                            modifier += Math.round(this.getStat(stat) / 2);
                     }
                 }
             }
@@ -592,20 +612,52 @@ Game.EntityMixins.MeleeAttacker = {
         // TODO: Add critical mod
         return this._meleeAttackValue + modifier;
     },
+    getMeleeAttackStyle: function() {
+        return this._meleeAttackStyle;
+    },
+    // TODO: Melee with more than just hands?
     melee: function(target) {
         // Only remove the entity if they were attackable
-        if (target.hasMixin('Destructible')) {
-            var hit = this.attemptHit(target);
-            if(hit) {
-                var attack = this.getMeleeAttackValue();
-                var defense = target.getDefenseValue();
-                var total = Math.max(0, attack - defense);
-                Game.sendMessage(this, 'You strike the %s for %s damage!', [target.getName(), total]);
-                Game.sendMessage(target, 'The %s strikes you for %s damage!', [this.getName(), total]);
-                target.takeDamage(this, total);
+        if(target.hasMixin('Destructible')) {
+            var hit, attack, defense,
+                total = 0;
+            if(this._meleeAttackStyle == 'slot') {
+                var meleeSlots = this.getMeleeSlots();
+                for (var i = 0; i < meleeSlots.length; i++) {
+                    var slotItem = this.getSlot(meleeSlots[i]);
+                    if(!slotItem)
+                        continue;
+
+                    hit = this.attemptHit(target);
+                    if(hit) {
+                        attack = this.getMeleeAttackValue(meleeSlots[i]);
+                        defense = target.getDefenseValue();
+                        total = Math.max(0, attack - defense);
+
+                        Game.sendMessage(this, 'You strike the %s for %s damage!', [target.getName(), total]);
+                        Game.sendMessage(target, 'The %s strikes you for %s damage!', [this.getName(), total]);
+
+                        target.takeDamage(this, total);
+                    } else {
+                        Game.sendMessage(this, 'You miss %s!', [target.describeThe()]);
+                        Game.sendMessage(target, '%s misses you!', [this.describeThe()]);
+                    }
+                }
             } else {
-                Game.sendMessage(this, 'You miss %s!', [target.describeThe()]);
-                Game.sendMessage(target, '%s misses you!', [this.describeThe()]);
+                hit = this.attemptHit(target);
+                if(hit) {
+                    attack = this.getMeleeAttackValue();
+                    defense = target.getDefenseValue();
+                    total = Math.max(0, attack - defense);
+
+                    Game.sendMessage(this, 'You attack the %s for %s damage!', [target.getName(), total]);
+                    Game.sendMessage(target, 'The %s attacks you for %s damage!', [this.getName(), total]);
+
+                    target.takeDamage(this, total);
+                } else {
+                    Game.sendMessage(this, 'You miss %s!', [target.describeThe()]);
+                    Game.sendMessage(target, '%s misses you!', [this.describeThe()]);
+                }
             }
         }
     },
@@ -705,18 +757,21 @@ Game.EntityMixins.RangedAttacker = {
         this._rangedAttackValue = template['rangedAttackValue'] || 0;
         this._rangedAttackStyle = template['rangedAttackStyle'] || 'slot'; // or 'all'; used mainly for AI stuff
     },
-    getRangedAttackValue: function(slot) {
+    getRangedAttackValue: function(slot, max) {
         // TODO: Add critical mod
         // If we can equip items, then have to take into 
         // consideration weapon and armor
         if(this.hasMixin(Game.EntityMixins.Equipper)) {
             // If a slot is specified, only use that slot's stats + ammo
             if(slot) {
-                var item = this.getSlot(slot),
-                    ammoAttackValue = item.hasMixin('UsesAmmo') ? item.getAmmo().getAttackValue() : 0,
+                var item = this.getSlot(slot);
+                if(!item)
+                    return 0;
+
+                var ammoAttackValue = item.hasMixin('UsesAmmo') ? item.getAmmo().getAttackValue(max) : 0,
                     stat = item.getAttackStatModifier(),
                     statMod = this.getStat(stat) || 0;
-                return Math.round((item.getAttackValue() + ammoAttackValue + (statMod / 2)) * Math.max(1, this.getLevel() / 2));
+                return Math.round((item.getAttackValue(max) + ammoAttackValue + (statMod / 2)) * Math.max(1, this.getLevel() / 2));
             } else {
                 var modifier = 0,
                     equipment = this.getEquipment();
@@ -727,38 +782,72 @@ Game.EntityMixins.RangedAttacker = {
                     if(type === 'ranged') {
                         var stat = item.getAttackStatModifier();
 
-                        modifier += item.getAttackValue();
+                        modifier += item.getAttackValue(max);
 
                         if(stat)
-                            modifier += this.getStat(stat);
+                            modifier += Math.round(this.getStat(stat) / 2);
                     }
                 }
                 return this._rangedAttackValue + modifier;
             }
         }        
     },
-    shoot: function(target, slot) {
-        if(this.getSlot(slot).hasMixin('UsesAmmo') && this.getSlot(slot).getAmmo().amount() <= 0) {
-            Game.sendMessage(this, "You don't have any ammunition");
-            return false;
-        }
-
-        // Remove 1 ammo...
-        this.unload(slot, 1);
-
+    getRangedAttackStyle: function() {
+        return this._rangedAttackStyle;
+    },
+    shoot: function(target) {
         // Only remove the entity if they were attackable
         if(target.hasMixin('Destructible')) {
-            var hit = this.attemptShot(target);
-            if(hit) {
-                var attack = this.getRangedAttackValue(slot);
-                var defense = target.getDefenseValue();
-                var total = Math.max(0, attack - defense);
-                Game.sendMessage(this, 'You shoot the %s for %s damage!', [target.getName(), total]);
-                Game.sendMessage(target, 'The %s shoots you for %s damage!', [this.getName(), total]);
-                target.takeDamage(this, total);
+            var attack, defense, hit,
+                total = 0;
+            if(this.getRangedAttackStyle() == 'slot') {
+                var rangedSlots = this.getRangedSlots();
+                for (var i = 0; i < rangedSlots.length; i++) {
+                    var slotItem = this.getSlot(rangedSlots[i]);
+
+                    if(!slotItem)
+                        continue;
+
+                    if(slotItem.hasMixin('UsesAmmo') && slotItem.getAmmo().amount() <= 0) {
+                        Game.sendMessage(this, "You don't have any ammunition for %s", [slotItem.describeThe()]);
+                        return false;
+                    }
+
+                    // Remove 1 ammo...
+                    // TODO: Support variable amount of ammo expendature
+                    this.unload(rangedSlots[i], 1);
+
+                    hit = this.attemptShot(target);
+                    if(hit) {
+                        attack = this.getRangedAttackValue(rangedSlots[i]);
+                        defense = target.getDefenseValue();
+                        total = Math.max(0, attack - defense);
+
+                        Game.sendMessage(this, 'You shoot the %s for %s damage!', [target.getName(), total]);
+                        Game.sendMessage(target, 'The %s shoots you for %s damage!', [this.getName(), total]);
+
+                        target.takeDamage(this, total);
+                    } else {
+                        Game.sendMessage(this, 'You miss %s!', [target.describeThe()]);
+                        Game.sendMessage(target, '%s misses you!', [this.describeThe()]);
+                    }
+                }
             } else {
-                Game.sendMessage(this, 'You miss %s!', [target.describeThe()]);
-                Game.sendMessage(target, '%s misses you!', [this.describeThe()]);
+                // TODO: Expend ammo somehow? This will generally be monsters using monster weapons, so maybe not
+                hit = this.attemptShot(target);
+                if(hit) {
+                    attack = this.getRangedAttackValue();
+                    defense = target.getDefenseValue();
+                    total = Math.max(0, attack - defense);
+
+                    Game.sendMessage(this, 'You shoot the %s for %s damage!', [target.getName(), total]);
+                    Game.sendMessage(target, 'The %s shoots you for %s damage!', [this.getName(), total]);
+
+                    target.takeDamage(this, total);
+                } else {
+                    Game.sendMessage(this, 'You miss %s!', [target.describeThe()]);
+                    Game.sendMessage(target, '%s misses you!', [this.describeThe()]);
+                }
             }
         } else {
             Game.sendMessage(this, 'You shoot the %s but they seem impervious to damage...', [target.getName()]);

@@ -47,8 +47,8 @@ Game.ItemMixins.Equippable = {
         this._hands = template['hands'] || null; // or 1 or 2
         this._equipped = template['equipped'] || false;
     },
-    getAttackValue: function() {
-        return this.rollDice() + this._attackValue;
+    getAttackValue: function(max) {
+        return this.rollDice(max) + this._attackValue;
     },
     getDefenseValue: function() {
         return this._defenseValue;
@@ -74,15 +74,18 @@ Game.ItemMixins.Equippable = {
     unequipped: function() {
         this._equipped = false;
     },
-    rollDice: function() {
+    rollDice: function(max) {
         var dice = this._dice.split("d"),
             num = dice[0],
             sides = dice[1],
             total = 0;
 
-        for (var i = 0; i < num; i++) {
-            total += Math.floor(Math.random() * sides) + 1;
-        }
+        if(max)
+            total = num * sides;
+        else
+            for (var i = 0; i < num; i++)
+                total += Math.floor(Math.random() * sides) + 1;
+
         return total;
     },
     listeners: {
