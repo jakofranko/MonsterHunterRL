@@ -653,7 +653,8 @@ Game.EntityMixins.MeleeAttacker = {
     getMeleeAttackStyle: function() {
         return this._meleeAttackStyle;
     },
-    // TODO: Melee with more than just hands?
+    // TODO: Melee with more slots than just hands?
+    // TODO: Handle unarmed combat, or meleeing without melee weapons
     melee: function(target) {
         // Only remove the entity if they were attackable
         if(target.hasMixin('Destructible')) {
