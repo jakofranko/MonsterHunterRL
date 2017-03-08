@@ -100,7 +100,8 @@ Game.ItemRepository.define('shotgun', {
     type: 'ranged',
     hands: 2,
     clipSize: 2,
-    ammoType: 'shotgun shell',
+    usesAmmoType: 'shotgun shell',
+    defaultAmmo: 'shotgun shell',
     mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.UsesAmmo]
 }, {
     disableRandomCreation: true
@@ -116,6 +117,7 @@ Game.ItemRepository.define('rifle', {
     type: 'ranged',
     hands: 2,
     clipSize: 6,
+    defaultAmmo: 'lead bullet',
     mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.UsesAmmo]
 }, {
     disableRandomCreation: true
@@ -131,7 +133,8 @@ Game.ItemRepository.define('bow', {
     type: 'ranged',
     hands: 2,
     clipSize: 1,
-    ammoType: 'arrow',
+    usesAmmoType: 'arrow',
+    defaultAmmo: 'wooden arrow',
     mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.UsesAmmo]
 }, {
     disableRandomCreation: true
@@ -146,6 +149,7 @@ Game.ItemRepository.define('pistol', {
     attackValue: 2,
     type: 'ranged',
     hands: 1,
+    defaultAmmo: 'lead bullet',
     mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.UsesAmmo]
 }, {
     disableRandomCreation: true
@@ -159,23 +163,45 @@ Game.ItemRepository.define('lead bullet', {
     attackValue: 1,
     count: 20,
     type: 'ammo',
+    ammoType: 'bullet',
     stackable: true,
-    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Stackable]
-}, {
-    disableRandomCreation: true
+    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Stackable, Game.ItemMixins.Ammo]
 });
 
-Game.ItemRepository.define('arrow', {
-    name: 'arrow',
+Game.ItemRepository.define('silver bullet', {
+    name: 'silver bullet',
+    character: ':',
+    foreground: Game.Palette.silver,
+    attackValue: 2,
+    count: 20,
+    type: 'ammo',
+    ammoType: 'bullet',
+    stackable: true,
+    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Stackable, Game.ItemMixins.Ammo]
+});
+
+Game.ItemRepository.define('wooden arrow', {
+    name: 'wooden arrow',
     character: '^',
     foreground: Game.Palette.brown,
     attackValue: 1,
-    count: 10,
+    count: 20,
     type: 'ammo',
+    ammoType: 'arrow',
     stackable: true,
-    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Stackable]
-}, {
-    disableRandomCreation: true
+    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Stackable, Game.ItemMixins.Ammo]
+});
+
+Game.ItemRepository.define('iron arrow', {
+    name: 'iron arrow',
+    character: '^',
+    foreground: Game.Palette.gunmetal,
+    attackValue: 2,
+    count: 20,
+    type: 'ammo',
+    ammoType: 'arrow',
+    stackable: true,
+    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Stackable, Game.ItemMixins.Ammo]
 });
 
 Game.ItemRepository.define('shotgun shell', {
@@ -185,10 +211,9 @@ Game.ItemRepository.define('shotgun shell', {
     attackValue: 2,
     count: 12,
     type: 'ammo',
+    ammoType: 'shotgun shell',
     stackable: true,
-    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Stackable]
-}, {
-    disableRandomCreation: true
+    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Stackable, Game.ItemMixins.Ammo]
 });
 
 // Throwables

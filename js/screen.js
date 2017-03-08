@@ -34,6 +34,7 @@ Game.Screen.ItemListScreen = function(template) {
     this._isAcceptableFunction = template['isAcceptable'] || function(x) {
         return x;
     };
+    this._init = template['init'] || function(){};
 
     // Can the user select items at all?
     this._canSelectItem = template['canSelect'];
@@ -44,7 +45,7 @@ Game.Screen.ItemListScreen = function(template) {
     // Whether a 'no item' option should appear.
     this._hasNoItemOption = template['hasNoItemOption'];
 };
-Game.Screen.ItemListScreen.prototype.setup = function(player, items) {
+Game.Screen.ItemListScreen.prototype.setup = function(player, items, ...additionalArgs) {
     this._player = player;
     // Should be called before switching to the screen.
     var count = 0;
@@ -62,6 +63,10 @@ Game.Screen.ItemListScreen.prototype.setup = function(player, items) {
 
     // Clean set of selected indices
     this._selectedIndices = {};
+
+    // Any custom initialization
+    this._init.apply(this, [player, items].concat(additionalArgs));
+
     return count;
 };
 Game.Screen.ItemListScreen.prototype.render = function(display) {
