@@ -788,7 +788,8 @@ Game.Screen.helpScreen = new Game.Screen.basicScreen({
         display.drawText(0, y++, '[d] to drop items');
         display.drawText(0, y++, '[e] to equip items');
         display.drawText(0, y++, '[E] to eat items');
-        display.drawText(0, y++, '[r] to reload');
+        display.drawText(0, y++, '[r] to quick reload');
+        display.drawText(0, y++, '[R] to choose ammo');
         display.drawText(0, y++, '[t] to throw items');
         display.drawText(0, y++, '[f] to fire ranged weapons');
         display.drawText(0, y++, '[x] to examine items');
