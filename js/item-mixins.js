@@ -1,5 +1,18 @@
 Game.ItemMixins = {};
 
+Game.ItemMixins.Ammo = {
+    name: 'Ammo',
+    init: function(template) {
+        this._ammoType = template['ammoType'] || false;
+        this._ammoAOE = template['ammoAOE'] || 'line';
+    },
+    getAmmoType: function() {
+        return this._ammoType;
+    },
+    getAmmoAOE: function() {
+        return this._ammoAOE;
+    },
+};
 Game.ItemMixins.Edible = {
     name: 'Edible',
     init: function(template) {
@@ -128,20 +141,34 @@ Game.ItemMixins.UsesAmmo = {
     name: 'UsesAmmo',
     init: function(template) {
         this._clipSize = template['clipSize'] || 10;
-        this._ammoType = template['ammoType'] || 'lead bullet';
-        this._ammo = template['ammo'] || Game.ItemRepository.create(this._ammoType, { count: this._clipSize });
+        this._usesAmmoType = template['usesAmmoType'] || 'bullet';
+        this._defaultAmmo = template['defaultAmmo'] || 'lead bullet';
+        this._ammo = template['ammo'] || Game.ItemRepository.create(this._defaultAmmo, { count: this._clipSize });
     },
     getClipSize: function() {
         return this._clipSize;
     },
-    getAmmoType: function() {
-        return this._ammoType;
-    },
     getAmmo: function() {
         return this._ammo;
     },
+    getUsesAmmoType: function() {
+        return this._usesAmmoType;
+    },
+    getDefaultAmmo: function() {
+        return this._defaultAmmo;
+    },
     setAmmo: function(ammo) {
-        this._ammo = ammo;
+        var ammoObject;
+        if(typeof ammo === 'string')
+            ammoObject = Game.ItemRepository.create(ammo, { count: 0 });
+        else
+            ammoObject = ammo;
+
+        if(ammoObject.getAmmoType() !== this._usesAmmoType)
+            return false;
+
+        this._ammo = ammoObject;
+        return true;
     },
     addAmmo: function(amount) {
         this._ammo.addToStack(amount);

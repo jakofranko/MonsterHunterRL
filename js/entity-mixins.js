@@ -226,6 +226,14 @@ Game.EntityMixins.Equipper = {
         return (this._equipmentSlots.rightHand && this._equipmentSlots.rightHand.getType() === 'ranged') || 
             (this._equipmentSlots.leftHand && this._equipmentSlots.leftHand.getType() === 'ranged');
     },
+    hasAmmo: function() {
+        for (var i = 0; i < this._rangedSlots.length; i++) {
+            var slotItem = this._equipmentSlots[this._rangedSlots[i]];
+            if(slotItem && slotItem.getAmmo() && slotItem.getAmmo().amount())
+                return true;
+        }
+        return false;
+    },
     equip: function(item, slot) {
         // If an item is already in a given slot, try to put it in inventory or drop it
         if(this._equipmentSlots[slot] !== null)
@@ -250,25 +258,52 @@ Game.EntityMixins.Equipper = {
             Game.sendMessage(this, "You equiped %s.", [item.describeA()]);
         }
     },
-    reload: function(slot) {
+    reload: function(slot, ammoName) {
         if(this._equipmentSlots[slot].hasMixin('UsesAmmo')) {
             var weapon = this._equipmentSlots[slot],
                 currAmmo = weapon.getAmmo(),
-                ammoType = weapon.getAmmoType(),
+                ammoType = weapon.getUsesAmmoType(),
                 clipSize = weapon.getClipSize(),
                 diff = clipSize,
                 items = this.getItems(),
-                successfulReload = false;
-            if(currAmmo)
+                successfulReload = false,
+                changingAmmo = false;
+
+            if(currAmmo) {
                 diff = clipSize - currAmmo.amount();
 
-            if(diff <= 0) {
+                // If no ammoName is specified, use what we're already using
+                if(!ammoName)
+                    ammoName = currAmmo.getName();
+            } else if(!ammoName) {
+                // If we don't have any ammo currently and aren't
+                // specifying a particular kind, look for the default
+                ammoName = weapon.getDefaultAmmo();
+            }
+
+            // Determine whether or not we are changing ammo types
+            changingAmmo = (ammoName !== currAmmo.getName());
+
+            // If the diff is less than 0 and we're not trying to put new ammo in, no need to reload
+            if(diff <= 0 && !changingAmmo) {
                 Game.sendMessage(this, "Your %s does not need to be reloaded", [weapon.describe()]);
                 return false;
             }
 
             for (var i = 0; i < items.length; i++) {
-                if(items[i] && items[i].hasMixin('Equippable') && items[i].getType() === 'ammo' && items[i].getName() === ammoType) {
+                // If we have ammo that matches the type our weapon needs and the kind we specified, attempt to reload
+                if(items[i] && items[i].hasMixin('Equippable') && items[i].getType() === 'ammo' && items[i].getAmmoType() === ammoType && items[i].getName() === ammoName) {
+                    if(changingAmmo) {
+                        // Put the current ammo (if any) in it's own stack back in our inventory and set the new ammo
+                        if(this.hasMixin('InventoryHolder')) {
+                            if(diff > 0)
+                                Game.sendMessage(this, "You unload %s %s and put them in your backback", [currAmmo.amount(), currAmmo.getName() + "s"]);
+                            this.addItem(currAmmo);
+                            this._equipmentSlots[slot].setAmmo(ammoName); // TODO: does this also change the inventory slot?
+                        }
+                        // Put a new clipsworth (if possible) of the new stuff in our weapon
+                        diff = clipSize;
+                    }
                     // Try to refill your weapon with only the amount that it needs, given the amount that you have
                     var ammoAmount = items[i].amount(),
                         realAmount = 0;
@@ -282,15 +317,18 @@ Game.EntityMixins.Equipper = {
                     this.removeItem(i, realAmount);
 
                     // And then update the ammo in the weapon
-                    this._equipmentSlots[slot].addAmmo(realAmount);
-                    Game.sendMessage(this, 'You reload %s with %s %s', [weapon.describeThe(), realAmount, ammoType + 's']);
+                    this._equipmentSlots[slot].addAmmo(realAmount, ammoName);
+                    Game.sendMessage(this, 'You reload %s with %s %s', [weapon.describeThe(), realAmount, ammoName + 's']);
                     successfulReload = true;
                     break;
                 }
             }
 
-            if(!successfulReload)
-                Game.sendMessage(this, 'You don\'t have any %s to reload your %s with.', [ammoType + 's', weapon.describeThe()]);
+            if(!successfulReload) {
+                Game.sendMessage(this, 'You don\'t have any %s to reload your %s with.', [ammoName + 's', weapon.describeThe()]);
+                return false
+            }
+            return true;
         }
     },
     unload: function(slot, amount) {
