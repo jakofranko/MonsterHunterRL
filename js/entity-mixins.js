@@ -536,7 +536,7 @@ Game.EntityMixins.InventoryHolder = {
                     this._items[i] = item;
                     return true;
                 } else if(this._items[i].describe() == item.describe()) {
-                    this._items[i].addToStack();
+                    this._items[i].addToStack(item.amount());
                     return true;
                 }
             }
@@ -802,11 +802,15 @@ Game.EntityMixins.RangedAttacker = {
         if(this.hasMixin(Game.EntityMixins.Equipper)) {
             // If a slot is specified, only use that slot's stats + ammo
             if(slot) {
-                var item = this.getSlot(slot);
+                var item = this.getSlot(slot),
+                    ammo;
                 if(!item)
                     return 0;
 
-                var ammoAttackValue = item.hasMixin('UsesAmmo') ? item.getAmmo().getAttackValue(max) : 0,
+                if(item.hasMixin('UsesAmmo'))
+                    ammo = item.getAmmo();
+
+                var ammoAttackValue = ammo ? ammo.getAttackValue(max) : 0,
                     stat = item.getAttackStatModifier(),
                     statMod = this.getStat(stat) || 0;
                 return Math.round((item.getAttackValue(max) + ammoAttackValue + (statMod / 2)) * Math.max(1, this.getLevel() / 2));
@@ -846,7 +850,7 @@ Game.EntityMixins.RangedAttacker = {
                     if(!slotItem || slotItem.getType() !== 'ranged')
                         continue;
 
-                    if(slotItem.hasMixin('UsesAmmo') && slotItem.getAmmo().amount() <= 0) {
+                    if(slotItem.hasMixin('UsesAmmo') && (slotItem.getAmmo() === false || slotItem.getAmmo().amount() <= 0)) {
                         Game.sendMessage(this, "You don't have any ammunition for %s", [slotItem.describeThe()]);
                         return false;
                     }

@@ -112,13 +112,13 @@ Game.ItemMixins.Stackable = {
     name: 'Stackable',
     init: function(template) {
         this._stackable = template['stackable'] || false;
-        this._count = template['count'] || 1;
+        this._count = template['count'] === undefined ? 1 : template['count'];
     },
     amount: function() {
         return this._count;
     },
     addToStack: function(amount) {
-        if(amount) {
+        if(typeof amount === "number") {
             this._count += amount;
         } else {
             this._count++;    
