@@ -21,11 +21,12 @@ Game.Repository.prototype.define = function(name, template, options) {
 
 // Create an object based on a template.
 Game.Repository.prototype.create = function(name, extraProperties) {
-    if(!this._templates[name]) {
+    if(!this._templates[name])
         throw new Error("No template named '" + name + "' in repository '" + this._name + "'");
-    }
+
     // Copy the template
     var template = Object.create(this._templates[name]);
+
     // Apply any extra properties
     if(extraProperties) {
         for (var key in extraProperties) {
@@ -37,11 +38,10 @@ Game.Repository.prototype.create = function(name, extraProperties) {
                 extraProperties[key]['random'] === true &&
                 extraProperties[key]['values'] &&
                 extraProperties[key]['values'].constructor === Array
-            ) {
+            ) 
                 template[key] = extraProperties[key]['values'].random();
-            } else {
+            else
                 template[key] = extraProperties[key];
-            }
         }
     }
     // Create the object, passing the template as an argument

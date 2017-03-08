@@ -202,7 +202,7 @@ Game.EntityRepository.define('Chastity', {
     maxHp: 40,
     sightRadius: 6,
     inventorySlots: 22,
-    items: ['arrow', 'arrow'],
+    items: ['wooden arrow', 'iron arrow'],
     equipment: {
         rightHand: 'bow'
     },
@@ -238,6 +238,11 @@ Game.EntityRepository.define('Mitchell', {
     maxHp: 40,
     sightRadius: 6,
     inventorySlots: 22,
+    items: ['lead bullet', 'silver bullet'],
+    equipment: {
+        rightHand: 'pistol',
+        leftHand: 'pistol'
+    },
     mixins: [
         Game.EntityMixins.Sight,
         Game.EntityMixins.PlayerActor,

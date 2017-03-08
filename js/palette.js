@@ -8,5 +8,6 @@ Game.Palette = {
 	brown: "brown",
 	purple: "purple",
 	grey: "grey",
-	gunmetal: "slategray"
+	gunmetal: "slategray",
+	silver: "silver"
 };

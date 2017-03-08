@@ -34,6 +34,7 @@ Game.Screen.ItemListScreen = function(template) {
     this._isAcceptableFunction = template['isAcceptable'] || function(x) {
         return x;
     };
+    this._init = template['init'] || function(){};
 
     // Can the user select items at all?
     this._canSelectItem = template['canSelect'];
@@ -44,7 +45,7 @@ Game.Screen.ItemListScreen = function(template) {
     // Whether a 'no item' option should appear.
     this._hasNoItemOption = template['hasNoItemOption'];
 };
-Game.Screen.ItemListScreen.prototype.setup = function(player, items) {
+Game.Screen.ItemListScreen.prototype.setup = function(player, items, ...additionalArgs) {
     this._player = player;
     // Should be called before switching to the screen.
     var count = 0;
@@ -62,6 +63,10 @@ Game.Screen.ItemListScreen.prototype.setup = function(player, items) {
 
     // Clean set of selected indices
     this._selectedIndices = {};
+
+    // Any custom initialization
+    this._init.apply(this, [player, items].concat(additionalArgs));
+
     return count;
 };
 Game.Screen.ItemListScreen.prototype.render = function(display) {
@@ -140,6 +145,100 @@ Game.Screen.ItemListScreen.prototype.handleInput = function(inputType, inputData
                     this.executeOkFunction();
                 }
             }
+        }
+    }
+};
+
+// Equipment Screen
+Game.Screen.EquipmentScreen = function(template) {
+    this._name = template['name'] || 'Equipment';
+    this._caption = template['caption'] || 'Equipment';
+    this._setupArgs = null;
+    this._entity = null;
+    this._slots = {};
+    this._slotsFilter = template['slotsFilter'] || false;
+    this._typeFilter = template['typeFilter'] || false;
+    this._slotNames = [];
+    this._selectedIndex = false;
+
+    // By default, show 
+    this._okFunction = template['ok'] || function(){};
+};
+Game.Screen.EquipmentScreen.prototype.setup = function(entity, ...otherArgs) {
+    if(!entity)
+        throw new Error('Entity is required');
+    this._entity = entity;
+    this._slots = this._entity.getEquipmentSlots();
+
+    // If a slot filter is set, filter out everything but those slots
+    if(this._slotsFilter) {
+        for(var slot in this._slots) {
+            if(this._slotsFilter.indexOf(slot) === -1) {
+                delete this._slots[slot];
+            }
+        }
+    }
+
+    // If a type filter is set, filter out slots that don't have equipment with these types
+    if(this._typeFilter) {
+        for(var s in this._slots) {
+            if(!this._slots[s])
+                continue;
+
+            var type = this._slots[s].getType();
+            if(this._typeFilter.indexOf(type) === -1)
+                delete this._slots[s];
+        }
+    }
+    this._slotNames = Object.keys(this._slots);
+
+    if(otherArgs)
+        this._setupArgs = otherArgs;
+};
+Game.Screen.EquipmentScreen.prototype.render = function(display) {
+    var letters = 'abcdefghijklmnopqrstuvwxyz',
+        w = Game.getScreenWidth(),
+        h = Game.getScreenHeight(),
+        y = 3;
+
+    // Render caption
+    display.drawText(Math.round(w / 2) - Math.round(this._caption.length / 2), y++, this._caption);
+
+    // Render equipment slots
+    var i = 0;
+    for(var slot in this._slots) {
+        var spacedText = slot.replace(/([A-Z][a-z]+)/g, " $1"),
+            capitalizedText = spacedText.replace(/\b\w/g, function(firstLetter) { return firstLetter.toUpperCase(); }),
+            equipment = (this._slots[slot]) ? this._slots[slot].describeA() : "Empty",
+            letter = letters.substring(i, i + 1);
+
+        display.drawText(0, y++, letter + " - " + capitalizedText + ": " + equipment);
+        i++;
+    }        
+};
+Game.Screen.EquipmentScreen.prototype.executeOkFunction = function() {
+    // set up selected equipment and equipment slot names
+    var selectedSlotName = this._slotNames[this._selectedIndex];
+    var selectedEquipment = this._slots[selectedSlotName];
+
+    // Switch back to play screen
+    Game.Screen.playScreen.setSubScreen(undefined);
+
+    // If the ok function returns true, unlokd the engin
+    var success = this._okFunction(selectedSlotName, selectedEquipment);
+    if(success)
+        this._entity.getMap().getEngine().unlock();
+    else
+        Game.refresh();
+};
+Game.Screen.EquipmentScreen.prototype.handleInput =  function(inputType, inputData) {
+    if(inputType === 'keydown') {
+        if(inputData.keyCode === ROT.VK_ESCAPE || inputData.keyCode === ROT.VK_RETURN) {
+            this._selectedIndex = false;
+            this.executeOkFunction();
+        } else if(inputData.keyCode >= ROT.VK_A && inputData.keyCode <= ROT.VK_Z) {
+            this._selectedIndex = inputData.keyCode - ROT.VK_A;
+            this.executeOkFunction();
         }
     }
 };
@@ -236,6 +335,7 @@ Game.Screen.TargetBasedScreen.prototype.render = function(display) {
     );
 };
 Game.Screen.TargetBasedScreen.prototype.handleInput = function(inputType, inputData) {
+    var success = false;
     // Move the cursor
     if (inputType == 'keydown') {
         if(inputData.keyCode === ROT.VK_LEFT)
@@ -269,8 +369,10 @@ Game.Screen.TargetBasedScreen.prototype.executeOkFunction = function() {
     // Switch back to the play screen.
     Game.Screen.playScreen.setSubScreen(undefined);
     // Call the OK function and end the player's turn if it return true.
-    if (this._okFunction && this._okFunction(this._cursorX + this._offsetX, this._cursorY + this._offsetY))
+    if(this._okFunction && this._okFunction(this._cursorX + this._offsetX, this._cursorY + this._offsetY))
         this._player.getMap().getEngine().unlock();
+    else
+        Game.refresh();
 };
 
 // Menu screens

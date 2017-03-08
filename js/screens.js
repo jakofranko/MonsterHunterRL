@@ -9,7 +9,7 @@ Game.Screen.startScreen = new Game.Screen.basicScreen({
         display.drawText((w/2) - 8, 5, "%c{yellow}Monster Hunter RL");
         display.drawText((w/2) - 15, 7, "Press [?] at any time for help");
         display.drawText((w/2) - 12, 8, "Press [Enter] to start!");
-        display.drawText((w/2) - 3, h - 1, "v0.0.4");
+        display.drawText((w/2) - 3, h - 1, "v0.0.5");
     },
     handleInput: function(inputType, inputData) {
         // When [Enter] is pressed, go to the play screen
@@ -239,7 +239,7 @@ Game.Screen.playScreen = new Game.Screen.basicScreen({
                 if(inputData.shiftKey) {
                     this.showItemsSubScreen(Game.Screen.eatScreen, this._player.getItems(), 'You have nothing to eat.');
                 } else {
-                    Game.Screen.equipmentScreen.enter(this._player);
+                    Game.Screen.equipmentScreen.setup(this._player);
                     this.setSubScreen(Game.Screen.equipmentScreen);
                 }
                 return;
@@ -256,10 +256,30 @@ Game.Screen.playScreen = new Game.Screen.basicScreen({
                 }
             } else if(inputData.keyCode === ROT.VK_R) {
                 if(this._player.hasMixin('Equipper')) {
-                    if(this._player.getSlot('rightHand') && this._player.getSlot('rightHand').hasMixin('UsesAmmo'))
-                        this._player.reload('rightHand');
-                    if(this._player.getSlot('leftHand') && this._player.getSlot('leftHand').hasMixin('UsesAmmo'))
-                        this._player.reload('leftHand');
+                    if(inputData.shiftKey) {
+                        // TODO: Ammo picker screen
+                        // Show the reload picker screen
+                        this.showItemsSubScreen(Game.Screen.ammoSelectionScreen, this._player.getItems(), 'You have no ammo for your weapons.');
+                        return;
+                    } else { // Quick Reload
+                        var rangedSlots = this._player.getRangedSlots();
+                        var success = false;
+                        for (var i = 0; i < rangedSlots.length; i++) {
+                            var slot = this._player.getSlot(rangedSlots[i]);
+                            if(slot && slot.hasMixin('UsesAmmo')) {
+                                success = this._player.reload(rangedSlots[i]);
+                                if(success)
+                                    break;
+                            }
+                        }
+
+                        // If reloading was unsuccessful, don't penalize the player
+                        if(!success) {
+                            Game.refresh(); // Display messages
+                            this._player.clearMessages();
+                            return;
+                        }
+                    }
                 } else {
                     return;
                 }
@@ -484,55 +504,37 @@ Game.Screen.eatScreen = new Game.Screen.ItemListScreen({
         return true;
     }
 });
-Game.Screen.equipmentScreen = new Game.Screen.basicScreen({
-    enter: function(entity) {
-        if(entity.hasMixin('Equipper')) {
-            this._entity = entity;
-            this._slots = entity.getEquipmentSlots();
-            this._slotNames = Object.keys(this._slots);
-        } else {
-            this.exit();
-        }
-    },
-    exit: function() {
+Game.Screen.ammoSelectionScreen = new Game.Screen.ItemListScreen({
+    caption: 'Select the ammo you wish to use',
+    canSelect: true,
+    canSelectMultipleItems: false,
+    isAcceptable: function(item) {
+        if(item && item.hasMixin('Ammo')) {
+            var rangedSlots = this._player.getRangedSlots();
+            for (var i = 0; i < rangedSlots.length; i++) {
+                var rs = rangedSlots[i],
+                    rangedSlot = this._player.getSlot(rs);
 
-    },
-    render: function(display) {
-        var letters = 'abcdefghijklmnopqrstuvwxyz',
-            w = Game.getScreenWidth(),
-            h = Game.getScreenHeight(),
-            caption = "Equipment",
-            y = 3;
-
-        // Render caption
-        display.drawText(Math.round(w / 2) - Math.round(caption.length / 2), y++, caption);
-
-        // Render equipment slots
-        var i = 0;
-        for(var slot in this._slots) {
-            var spacedText = slot.replace(/([A-Z][a-z]+)/g, " $1"),
-                capitalizedText = spacedText.replace(/\b\w/g, function(firstLetter) { return firstLetter.toUpperCase(); }),
-                equipment = (this._slots[slot]) ? this._slots[slot].describeA() : "Empty",
-                letter = letters.substring(i, i + 1);
-
-            display.drawText(0, y++, letter + " - " + capitalizedText + ": " + equipment);
-            i++
-        }
-
-    },
-    handleInput: function(inputType, inputData) {
-        if(inputType === 'keydown') {
-            if(inputData.keyCode === ROT.VK_ESCAPE || inputData.keyCode === ROT.VK_RETURN)
-                Game.Screen.playScreen.setSubScreen(undefined);
-            else if(inputData.keyCode >= ROT.VK_A && inputData.keyCode <= ROT.VK_Z) {
-                var index = inputData.keyCode - ROT.VK_A,
-                    itemScreen = this._slotNames[index] + "EquipmentScreen"; // ie, bodyEquipmentScreen
-
-                Game.Screen[itemScreen].setup(this._entity, this._entity.getItems());
-                Game.Screen.playScreen.setSubScreen(Game.Screen[itemScreen]);
+                // If the current item's ammoType matches one of the rangedSlot items' usable ammo types, include it on the list.
+                if(
+                    rangedSlot &&
+                    rangedSlot.getType() === 'ranged' &&
+                    rangedSlot.hasMixin('UsesAmmo') &&
+                    rangedSlot.getUsesAmmoType() === item.getAmmoType()
+                ) {
+                    return true;
+                }
             }
+        } else {
+            return false;
         }
     },
+    ok: function(selectedItems) {
+        var key = Object.keys(selectedItems)[0];
+        var ammo = selectedItems[key];
+        Game.Screen.reloadRangedScreen.setup(this._player, ammo);
+        Game.Screen.playScreen.setSubScreen(Game.Screen.reloadRangedScreen);
+    }
 });
 Game.Screen.bodyEquipmentScreen = new Game.Screen.ItemListScreen({
     caption: 'Body Equipment',
@@ -663,6 +665,38 @@ Game.Screen.throwScreen = new Game.Screen.ItemListScreen({
     }
 });
 
+// Equipment Screens
+Game.Screen.equipmentScreen = new Game.Screen.EquipmentScreen({
+    name: 'Equipment Screen',
+    ok: function(slotName, slotItem) {
+        var itemScreen = slotName + "EquipmentScreen"; // ie, bodyEquipmentScreen
+
+        Game.Screen[itemScreen].setup(this._entity, this._entity.getItems());
+        Game.Screen.playScreen.setSubScreen(Game.Screen[itemScreen]);
+
+        // Return false so we don't skip our turn
+        return false;
+    }
+});
+Game.Screen.reloadRangedScreen = new Game.Screen.EquipmentScreen({
+    name: 'Reload Ranged Equipment Screen',
+    caption: 'Reload what?',
+    slotsFilter: ['leftHand', 'rightHand'],
+    typeFilter: ['ranged'],
+    ok: function(slotName, slotItem) {
+        if(!slotItem) {
+            var downcase = function(firstLetter) { return firstLetter.toLowerCase(); };
+            Game.sendMessage(this._entity, "Nothing to reload; Your %s is empty", [slotName.replace(/([A-Z][a-z]+)/g, " $1").replace(/\b\w/g, downcase)]);
+            return false;
+        } else {
+            // The ammo to reload with should be the first of the setupArgs
+            var ammo = this._setupArgs[0];
+            if(slotItem.getUsesAmmoType() === ammo.getAmmoType())
+                return this._entity.reload(slotName, ammo.getName());
+        }
+    }
+});
+
 // Target-based screens
 Game.Screen.lookScreen = new Game.Screen.TargetBasedScreen({
     captionFunction: function(x, y) {
@@ -706,6 +740,11 @@ Game.Screen.lookScreen = new Game.Screen.TargetBasedScreen({
 });
 Game.Screen.shootScreen = new Game.Screen.TargetBasedScreen({
     okFunction: function(x, y) {
+        if(!this._player.hasAmmo()) {
+            Game.sendMessage(this._player, "You have no ammo!");
+            return false;
+        }
+
         var equipment = this._player.getEquipmentSlots(),
             entity = false,
             wall = false,
