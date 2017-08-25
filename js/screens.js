@@ -264,14 +264,6 @@ Game.Screen.playScreen = new Game.Screen.basicScreen({
                 } else {
                     return;
                 }
-            } else if (inputData.keyCode === ROT.VK_W) {
-                if (inputData.shiftKey) {
-                    // Show the wear screen
-                    this.showItemsSubScreen(Game.Screen.wearScreen, this._player.getItems(), 'You have nothing to wear.');
-                } else {
-                    // Show the wield screen
-                    this.showItemsSubScreen(Game.Screen.wieldScreen, this._player.getItems(), 'You have nothing to wield.');
-                }
             } else if (inputData.keyCode === ROT.VK_X) {
                 // Show the drop screen
                 this.showItemsSubScreen(Game.Screen.examineScreen, this._player.getItems(),
