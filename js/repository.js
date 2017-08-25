@@ -9,6 +9,10 @@ Game.Repository.prototype.getTemplate = function(name) {
     return this._templates[name];
 };
 
+Game.Repository.prototype.getTemplates = function() {
+    return this._templates;
+};
+
 // Define a new named template.
 Game.Repository.prototype.define = function(name, template, options) {
     this._templates[name] = template;

@@ -25,7 +25,10 @@ Game.Map = function(width, height, depth, player) {
 
     // Create an object which will hold the entities
     this._entities = {};
+
+    // Generate
     this._generateEntities();
+    this._generateItems();
 
     // Add the Player
     this.addEntityAtRandomPosition(player, 0);
@@ -378,6 +381,15 @@ Game.Map.prototype.isExplored = function(x, y, z) {
 };
 
 // Items - TODO: move this?
+Game.Map.prototype._generateItems = function() {
+    // Place artifacts
+    var artifacts = Game.ItemRepository.getArtifacts();
+    artifacts.forEach(artifact => {
+        const randZ     = Math.floor(Math.random() * this._depth);
+        const randFloor = this.getRandomFloorPosition(randZ);
+        this.addItem(randFloor.x, randFloor.y, randZ, Game.ItemRepository.create(artifact.name));
+    });
+};
 Game.Map.prototype.getItemsAt = function(x, y, z) {
     return this._items[x + ',' + y + ',' + z];
 };
