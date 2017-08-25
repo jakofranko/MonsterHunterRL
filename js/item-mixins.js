@@ -13,6 +13,9 @@ Game.ItemMixins.Ammo = {
         return this._ammoAOE;
     },
 };
+Game.ItemMixins.Artifact = {
+    name: 'Artifact'
+},
 Game.ItemMixins.Edible = {
     name: 'Edible',
     init: function(template) {

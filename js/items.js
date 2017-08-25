@@ -1,4 +1,13 @@
 Game.ItemRepository = new Game.Repository('items', Game.Item);
+Game.ItemRepository.getArtifacts = function() {
+    var artifacts = [];
+    for(var template in this._templates) {
+        this._templates[template].mixins.forEach(mixin => {
+            if(mixin.name == 'Artifact') artifacts.push(this._templates[template]);
+        });
+    }
+    return artifacts;
+};
 
 // Weapons
 Game.ItemRepository.define('knife', {
@@ -388,7 +397,7 @@ Game.ItemRepository.define('Cavity Ridden Dragon Tooth', {
     statModifier: 'dex',
     type: 'melee',
     hands: 1,
-    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Throwable]
+    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Throwable, Game.ItemMixins.Artifact]
 }, {
     disableRandomCreation: true
 });
@@ -403,7 +412,7 @@ Game.ItemRepository.define('Extra Long Sword', {
     statModifier: 'str',
     type: 'melee',
     hands: 1,
-    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Throwable]
+    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Throwable, Game.ItemMixins.Artifact]
 }, {
     disableRandomCreation: true
 });
