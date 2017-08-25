@@ -76,7 +76,7 @@ Game.DijkstraMap.prototype.initialize = function(grid) {
             if(this._goalsFunction) {
                 if(this._goalsFunction(coord, grid)) {
                     this._goals.push(coord);
-                    this._dijkstraMap[coord] = 0;    
+                    this._dijkstraMap[coord] = 0;
                 }
             } else {
                 if(this._goals.indexOf(coord) > -1)

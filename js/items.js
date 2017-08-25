@@ -27,7 +27,7 @@ Game.ItemRepository.define('knife', {
 
 Game.ItemRepository.define('dagger', {
     name: 'dagger',
-    description: 'A bit stabbier than a knife, but not as good at spreading butter', 
+    description: 'A bit stabbier than a knife, but not as good at spreading butter',
     character: ')',
     foreground: Game.Palette.grey,
     dice: '1d4',
@@ -285,8 +285,6 @@ Game.ItemRepository.define('rotted leather toga', {
     slotLocations: ['body'],
     defenseValue: 1,
     mixins: [Game.ItemMixins.Equippable]
-}, {
-    disableRandomCreation: true
 });
 
 // Monster-only items
@@ -356,22 +354,6 @@ Game.ItemRepository.define('vampire fangs', {
     disableRandomCreation: true
 });
 
-//Artifacts
-Game.ItemRepository.define('Cavity Ridden Dragon Tooth', {
-    name: 'Cavity Ridden Dragon Tooth',
-    description: 'This looks super dangerous. Also kinda gross.', 
-    character: ')',
-    foreground: Game.Palette.yellow,
-    dice: '4d4',
-    attackValue: 6,
-    statModifier: 'dex',
-    type: 'melee',
-    hands: 1,
-    mixins: [Game.ItemMixins.Equippable, Game.ItemMixins.Throwable]
-}, {
-    disableRandomCreation: true
-});
-
 Game.ItemRepository.define('wight chill', {
     name: 'wight chill',
     character: '&',
@@ -389,7 +371,7 @@ Game.ItemRepository.define('wight chill', {
 //Artifacts
 Game.ItemRepository.define('Cavity Ridden Dragon Tooth', {
     name: 'Cavity Ridden Dragon Tooth',
-    description: 'This looks super dangerous. Also kinda gross.', 
+    description: 'This looks super dangerous. Also kinda gross.',
     character: ')',
     foreground: Game.Palette.yellow,
     dice: '4d4',
@@ -404,7 +386,7 @@ Game.ItemRepository.define('Cavity Ridden Dragon Tooth', {
 
 Game.ItemRepository.define('Extra Long Sword', {
     name: 'Extra Long Sword',
-    description: 'The mad genius who created this was probably compensating for somethihg', 
+    description: 'The mad genius who created this was probably compensating for something',
     character: '/',
     foreground: Game.Palette.gunmetal,
     dice: '3d8',

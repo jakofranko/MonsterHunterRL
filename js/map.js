@@ -1,6 +1,6 @@
 // @size should be square number of lots for a city.
 Game.Map = function(width, height, depth, player) {
-    // Used for drawing to various displays 
+    // Used for drawing to various displays
     this._tiles = this._generateTiles(width, height, depth);
 
     // Cache dimensions
@@ -136,7 +136,7 @@ Game.Map.prototype.addEntityAtRandomPosition = function(entity, z) {
 	this.addEntity(entity);
 };
 Game.Map.prototype.getEntityAt = function(x, y, z) {
-	// Get the entity based on position key 
+	// Get the entity based on position key
     return this._entities[x + ',' + y + ',' + z];
 };
 Game.Map.prototype.getEntitiesWithinRadius = function(centerX, centerY, centerZ, radius) {
@@ -148,9 +148,9 @@ Game.Map.prototype.getEntitiesWithinRadius = function(centerX, centerY, centerZ,
 	var bottomY = centerY + radius;
 	for (var key in this._entities) {
 		var entity = this._entities[key];
-		if (entity.getX() >= leftX && 
-			entity.getX() <= rightX && 
-			entity.getY() >= topY && 
+		if (entity.getX() >= leftX &&
+			entity.getX() <= rightX &&
+			entity.getY() >= topY &&
 			entity.getY() <= bottomY &&
 			entity.getZ() == centerZ) {
 			results.push(entity);

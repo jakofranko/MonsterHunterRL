@@ -124,7 +124,7 @@ Game.ItemMixins.Stackable = {
         if(typeof amount === "number") {
             this._count += amount;
         } else {
-            this._count++;    
+            this._count++;
         }
     },
     isStackable: function() {

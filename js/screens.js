@@ -292,7 +292,7 @@ Game.Screen.playScreen = new Game.Screen.basicScreen({
                     }
                 } else {
                     this.showItemsSubScreen(Game.Screen.pickupScreen, items, 'There is nothing here to pick up.');
-                } 
+                }
             } else {
                 // Not a valid key
                 return;
@@ -384,7 +384,7 @@ Game.Screen.playScreen = new Game.Screen.basicScreen({
                         // Update the foreground color in case our glyph changed
                         foreground = glyph.getForeground();
                     } else {
-                        // Since the tile was previously explored but is not 
+                        // Since the tile was previously explored but is not
                         // visible, we want to change the foreground color to
                         // dark gray.
                         foreground = 'darkGray';
@@ -393,8 +393,8 @@ Game.Screen.playScreen = new Game.Screen.basicScreen({
                     display.draw(
                         x - topLeftX,
                         y - topLeftY,
-                        glyph.getChar(), 
-                        foreground, 
+                        glyph.getChar(),
+                        foreground,
                         glyph.getBackground());
                 }
             }
